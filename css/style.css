@@ -142,6 +142,20 @@ button:disabled {
     font-size: 0.9rem;
 }
 
+/* Nuevo: Información sobre modo real */
+.real-mode-info {
+    background: #e6fffa;
+    border: 2px solid #38a169;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.real-mode-info h4 {
+    margin: 0 0 10px 0;
+    color: #38a169;
+}
+
 /* Visualización de la máquina */
 .visualization-section {
     background: linear-gradient(135deg, #f7fafc, #edf2f7);
@@ -181,7 +195,12 @@ button:disabled {
     font-family: 'Courier New', monospace;
 }
 
-/* Cinta de Turing */
+/* Nuevo: Información adicional de la máquina */
+.additional-machine-info {
+    display: contents;
+}
+
+/* Cinta de Turing mejorada */
 .tape-container h3 {
     margin-bottom: 15px;
     color: #2d3748;
@@ -218,6 +237,7 @@ button:disabled {
     font-weight: bold;
     margin: 0 1px;
     transition: all 0.3s ease;
+    position: relative;
 }
 
 .tape-cell.current {
@@ -225,11 +245,23 @@ button:disabled {
     border-color: #ff8c00;
     transform: scale(1.1);
     box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+    z-index: 5;
 }
 
 .tape-cell.empty {
     background: #f7fafc;
     color: #a0aec0;
+}
+
+/* Nuevos estilos para tipos de símbolos */
+.tape-cell.marker {
+    background: #fed7d7;
+    border-color: #f56565;
+}
+
+.tape-cell.separator {
+    background: #e6fffa;
+    border-color: #38a169;
 }
 
 .tape-head {
@@ -239,9 +271,24 @@ button:disabled {
     color: #ffd700;
     transition: left 0.3s ease;
     z-index: 10;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-/* Controles */
+/* Leyenda de símbolos */
+.symbol-legend {
+    margin-top: 10px;
+    padding: 10px;
+    background: #edf2f7;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.symbol-legend h4 {
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+}
+
+/* Controles mejorados */
 .controls {
     display: flex;
     flex-wrap: wrap;
@@ -258,11 +305,48 @@ button:disabled {
     background: #4a5568;
     color: white;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: all 0.3s ease;
+    font-weight: 500;
 }
 
 .control-btn:hover:not(:disabled) {
     background: #2d3748;
+    transform: translateY(-1px);
+}
+
+.control-btn:disabled {
+    background: #a0aec0;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Nuevo: Controles de scroll */
+.scroll-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 10px;
+}
+
+.scroll-toggle {
+    background: #a0aec0;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.scroll-toggle:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Nuevo: Botón debug */
+.debug-toggle {
+    background: #805ad5;
+}
+
+.debug-toggle:hover {
+    background: #6b46c1;
 }
 
 .speed-slider {
@@ -273,6 +357,7 @@ button:disabled {
 .speed-label {
     font-size: 0.9rem;
     color: #4a5568;
+    font-weight: 500;
 }
 
 /* Resultado */
@@ -312,13 +397,13 @@ button:disabled {
     font-family: 'Courier New', monospace;
 }
 
-/* Historial de pasos */
+/* Historial de pasos mejorado */
 .steps-section {
-    max-height: 400px;
+    max-height: 500px;
 }
 
 .steps-log {
-    max-height: 300px;
+    max-height: 400px;
     overflow-y: auto;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
@@ -326,8 +411,26 @@ button:disabled {
     background: #f7fafc;
 }
 
+/* Nuevo: Resumen de ejecución */
+.execution-summary {
+    background: #edf2f7;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.execution-summary h4 {
+    margin: 0 0 8px 0;
+}
+
+/* Contenedor de pasos */
+.steps-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
 .step-entry {
-    padding: 8px 12px;
+    padding: 10px 12px;
     margin-bottom: 8px;
     background: white;
     border-radius: 6px;
@@ -336,22 +439,97 @@ button:disabled {
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.3s ease;
+    line-height: 1.4;
 }
 
 .step-entry:hover {
     background: #f1f5f9;
     transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .step-entry.current {
     background: #fff5d6;
     border-left-color: #ffd700;
+    box-shadow: 0 2px 12px rgba(255, 215, 0, 0.3);
+}
+
+/* Nuevo: Highlight de transición */
+.step-entry.transition-highlight {
+    background: #e6fffa;
+    border-left-color: #38a169;
+    animation: highlight-pulse 1s ease-in-out;
+}
+
+@keyframes highlight-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
 }
 
 .no-steps {
     text-align: center;
     color: #a0aec0;
     font-style: italic;
+}
+
+/* Navegador de máquinas mejorado */
+.machine-navigator {
+    margin: 15px 0;
+    padding: 15px;
+    background: #f7fafc;
+    border-radius: 8px;
+    border-left: 4px solid #4299e1;
+}
+
+.machine-navigator h4 {
+    margin-bottom: 10px;
+    color: #2d3748;
+}
+
+.machine-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.machine-btn {
+    margin: 5px;
+    padding: 10px 15px;
+    border: 2px solid #38a169;
+    border-radius: 6px;
+    background: white;
+    color: black;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    text-align: left;
+    transition: all 0.3s ease;
+}
+
+.machine-btn:hover {
+    background: #f7fafc;
+    transform: translateX(3px);
+}
+
+.machine-btn.active {
+    background: #4299e1;
+    color: white;
+    border-color: #4299e1;
+}
+
+/* Nuevo: Detalles de máquina */
+.machine-details {
+    margin: 15px 0;
+    padding: 15px;
+    background: #f7fafc;
+    border-radius: 8px;
+    border-left: 4px solid #4299e1;
+}
+
+.machine-details h4 {
+    margin-bottom: 10px;
+    color: #2d3748;
 }
 
 /* Sugerencias de corrección */
@@ -374,48 +552,38 @@ button:disabled {
     margin-top: 10px;
 }
 
-/* Navegador de máquinas */
-.machine-navigator {
-    margin: 15px 0;
+/* Resumen de evaluación */
+.evaluation-summary {
+    background: #e6fffa;
     padding: 15px;
-    background: #f7fafc;
     border-radius: 8px;
+    margin-bottom: 15px;
+    border-left: 4px solid #38a169;
 }
 
-.machine-navigator h4 {
-    margin-bottom: 10px;
+.evaluation-summary h4 {
+    margin: 0 0 10px 0;
     color: #2d3748;
 }
 
-.machine-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 10px;
+.evaluation-summary details {
+    margin-top: 10px;
 }
 
-.machine-btn {
-    margin: 5px;
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background: white;
-    color: black;
+.evaluation-summary summary {
     cursor: pointer;
-    transition: all 0.3s ease;
+    font-weight: 600;
+    color: #4a5568;
 }
 
-.machine-btn.active {
-    background: #667eea;
-    color: white;
+.evaluation-summary ol {
+    margin-left: 20px;
+    margin-top: 10px;
 }
 
-.machine-btn:hover {
-    background: #e2e8f0;
-}
-
-.machine-btn.active:hover {
-    background: #5a67d8;
+.evaluation-summary li {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
 }
 
 /* Footer */
@@ -427,7 +595,47 @@ footer {
     font-size: 0.9rem;
 }
 
-/* Responsive */
+/* Notificaciones */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    max-width: 300px;
+}
+
+.notification-success {
+    background: #38a169;
+}
+
+.notification-error {
+    background: #e53e3e;
+}
+
+.notification-info {
+    background: #4299e1;
+}
+
+/* Estados especiales */
+.error-message {
+    color: #f56565;
+    padding: 15px;
+    background: #fed7d7;
+    border-radius: 8px;
+    border-left: 4px solid #f56565;
+}
+
+.error-message h4 {
+    margin: 0 0 8px 0;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
     .container {
         padding: 15px;
@@ -460,6 +668,7 @@ footer {
     
     .control-btn {
         flex: 1;
+        min-width: 120px;
     }
     
     .machine-list {
@@ -469,16 +678,74 @@ footer {
     .machine-btn {
         margin: 2px 0;
     }
+    
+    .tape-cell {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .symbol-legend {
+        font-size: 0.8rem;
+    }
+    
+    .steps-log {
+        max-height: 250px;
+    }
+    
+    .steps-container {
+        max-height: 200px;
+    }
 }
 
-/* Animaciones */
+@media (max-width: 480px) {
+    .tape-cell {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .control-btn {
+        width: 100%;
+    }
+    
+    .speed-slider {
+        width: 100%;
+    }
+    
+    .machine-status {
+        gap: 10px;
+    }
+    
+    .status-item {
+        padding: 8px;
+    }
+    
+    .status-item .value {
+        font-size: 1rem;
+    }
+}
+
+/* Animaciones mejoradas */
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+    0%, 100% { 
+        opacity: 1; 
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.7;
+        transform: scale(1.05);
+    }
 }
 
 .processing {
-    animation: pulse 1s infinite;
+    animation: pulse 1.5s infinite;
 }
 
 @keyframes slideIn {
@@ -496,71 +763,118 @@ footer {
     animation: slideIn 0.3s ease;
 }
 
-/* Notificaciones */
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 15px 20px;
-    border-radius: 8px;
-    color: white;
-    font-weight: bold;
-    z-index: 1000;
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
-    max-width: 300px;
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.8);
+    }
 }
 
-.notification-success {
-    background: #48bb78;
+.tape-cell.current {
+    animation: glow 2s infinite;
 }
 
-.notification-error {
-    background: #f56565;
+/* Transiciones suaves */
+.tape {
+    transition: transform 0.2s ease;
 }
 
-.notification-info {
-    background: #4299e1;
+.machine-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Estados especiales */
-.error-message {
-    color: #f56565;
-    padding: 15px;
-    background: #fed7d7;
-    border-radius: 8px;
-    border-left: 4px solid #f56565;
+.step-entry {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.evaluation-summary {
+/* Scroll personalizado */
+.steps-log::-webkit-scrollbar,
+.steps-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.steps-log::-webkit-scrollbar-track,
+.steps-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.steps-log::-webkit-scrollbar-thumb,
+.steps-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.steps-log::-webkit-scrollbar-thumb:hover,
+.steps-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Modo debug */
+.debug-mode .step-entry {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    background: #f0f8ff;
+}
+
+.debug-mode .machine-details {
+    display: block;
+}
+
+/* Tooltips */
+[title] {
+    position: relative;
+    cursor: help;
+}
+
+/* Estados de la máquina con colores */
+.status-item .value[style*="color: #38a169"] {
     background: #e6fffa;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    border-left: 4px solid #48bb78;
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
-.evaluation-summary h4 {
-    margin: 0 0 10px 0;
-    color: #2d3748;
+.status-item .value[style*="color: #f56565"] {
+    background: #fed7d7;
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
-.evaluation-summary details {
-    margin-top: 10px;
+.status-item .value[style*="color: #4299e1"] {
+    background: #ebf8ff;
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
-.evaluation-summary summary {
-    cursor: pointer;
-    font-weight: 600;
-    color: #4a5568;
+/* Mejoras de accesibilidad */
+.control-btn:focus,
+.machine-btn:focus,
+.step-entry:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
 }
 
-.evaluation-summary ol {
-    margin-left: 20px;
-    margin-top: 10px;
+.tape-cell:focus {
+    outline: 2px solid #ffd700;
+    outline-offset: 2px;
 }
 
-.evaluation-summary li {
-    margin-bottom: 5px;
-    font-size: 0.9rem;
+/* Print styles */
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+    
+    .controls,
+    .notification {
+        display: none;
+    }
+    
+    .machine-status,
+    .steps-log {
+        break-inside: avoid;
+    }
 }
