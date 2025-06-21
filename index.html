@@ -1,1 +1,107 @@
-Hola Mundo
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Binaria - Máquinas de Turing</title>
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="description" content="Calculadora binaria educativa con visualización de Máquinas de Turing paso a paso">
+    <meta name="keywords" content="binario, máquina de turing, calculadora, educación, ciencias de la computación">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Calculadora Binaria con Máquinas de Turing</h1>
+            <p>Visualiza cómo las Máquinas de Turing procesan operaciones binarias paso a paso</p>
+        </header>
+
+        <main>
+            <section class="calculator-section">
+                <div class="input-group">
+                    <label for="expression">Expresión Binaria:</label>
+                    <input type="text" 
+                           id="expression" 
+                           placeholder="Ej: (101 + 110) * 10"
+                           class="expression-input">
+                    <button id="calculate-btn" class="calculate-btn">Calcular</button>
+                    <button id="step-btn" class="step-btn" disabled>Paso a Paso</button>
+                    <button id="reset-btn" class="reset-btn">Reiniciar</button>
+                </div>
+                
+                <div class="help-text">
+                    <p><strong>Operadores soportados:</strong> + (suma), - (resta), * (multiplicación), / (división)</p>
+                    <p><strong>Paréntesis:</strong> Usa ( ) para cambiar el orden de las operaciones</p>
+                    <p><strong>Ejemplos:</strong> 1010 + 1100, (101 + 110) * 10, 11 + (1100 - 101)</p>
+                </div>
+            </section>
+
+            <section class="visualization-section">
+                <div class="machine-info">
+                    <h3>Estado de la Máquina de Turing</h3>
+                    <div class="machine-status">
+                        <div class="status-item">
+                            <span class="label">Operación:</span>
+                            <span id="current-operation" class="value">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">Estado:</span>
+                            <span id="current-state" class="value">q0</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">Posición:</span>
+                            <span id="head-position" class="value">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tape-container">
+                    <h3>Cinta de la Máquina de Turing</h3>
+                    <div class="tape-wrapper">
+                        <div id="tape" class="tape"></div>
+                        <div id="tape-head" class="tape-head">▼</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button id="prev-step" class="control-btn" disabled>← Anterior</button>
+                    <button id="next-step" class="control-btn" disabled>Siguiente →</button>
+                    <button id="auto-play" class="control-btn" disabled>▶ Auto</button>
+                    <input type="range" id="speed-slider" min="100" max="2000" value="800" class="speed-slider">
+                    <span class="speed-label">Velocidad</span>
+                </div>
+            </section>
+
+            <section class="result-section">
+                <h3>Resultado</h3>
+                <div class="result-display">
+                    <div class="result-item">
+                        <span class="label">Binario:</span>
+                        <span id="result-binary" class="result-value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Decimal:</span>
+                        <span id="result-decimal" class="result-value">-</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="steps-section">
+                <h3>Historial de Pasos</h3>
+                <div id="steps-log" class="steps-log">
+                    <p class="no-steps">No hay pasos registrados aún</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Implementación educativa de Máquinas de Turing para operaciones binarias</p>
+        </footer>
+    </div>
+
+    <script src="js/turing-machine.js"></script>
+    <script src="js/binary-operations.js"></script>
+    <script src="js/expression-parser.js"></script>
+    <script src="js/visualization.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
