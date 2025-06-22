@@ -414,48 +414,73 @@ class BinaryOperations {
      * @param {string} operator - Operador usado
      * @returns {Object} Resultado
      */
-    static extractResultFromTape(tapeContent, operator) {
-        try {
-            // Buscar patrones específicos según la operación
-            let binaryResult = '';
-            
-            if (tapeContent.includes('ERROR')) {
-                return { binary: 'ERROR', decimal: 'ERROR' };
-            }
-            
-            if (tapeContent.includes('NEGATIVE')) {
-                return { binary: 'NEGATIVE', decimal: 'NEGATIVE' };
-            }
-            
-            // Para operaciones con formato "a op b = result"
-            if (tapeContent.includes('=')) {
-                const parts = tapeContent.split('=');
-                if (parts.length > 1) {
-                    binaryResult = parts[1].replace(/[^01]/g, '');
+static extractResultFromTape(tapeContent, operator) {
+    try {
+        console.log(`🔍 Extrayendo resultado de cinta: "${tapeContent}"`);
+        
+        // Buscar patrones específicos según la operación
+        let binaryResult = '';
+        
+        if (tapeContent.includes('ERROR')) {
+            return { binary: 'ERROR', decimal: 'ERROR' };
+        }
+        
+        if (tapeContent.includes('NEGATIVE')) {
+            return { binary: 'NEGATIVE', decimal: 'NEGATIVE' };
+        }
+        
+        // CORRECCIÓN 14: Mejor manejo de extracción de resultados
+        if (tapeContent.includes('=')) {
+            const parts = tapeContent.split('=');
+            if (parts.length > 1) {
+                // Tomar todo después del último '='
+                const afterEquals = parts[parts.length - 1];
+                binaryResult = afterEquals.replace(/[^01]/g, '');
+                
+                // Si no hay resultado después de =, buscar el resultado en toda la cinta
+                if (!binaryResult) {
+                    const allBinarySegments = tapeContent.match(/[01]+/g);
+                    if (allBinarySegments && allBinarySegments.length > 0) {
+                        binaryResult = allBinarySegments[allBinarySegments.length - 1];
+                    }
                 }
+            }
+        } else {
+            // Buscar secuencia más larga de 0s y 1s
+            const matches = tapeContent.match(/[01]+/g);
+            if (matches) {
+                // Tomar la secuencia más larga (probablemente el resultado)
+                binaryResult = matches.reduce((longest, current) => 
+                    current.length > longest.length ? current : longest, '');
+            }
+        }
+        
+        // Validar resultado
+        if (!/^[01]+$/.test(binaryResult)) {
+            console.warn(`⚠️ No se encontró resultado binario válido en: ${tapeContent}`);
+            
+            // CORRECCIÓN 15: Último intento de extracción
+            const lastBinaryMatch = tapeContent.match(/([01]+)(?![01])/g);
+            if (lastBinaryMatch) {
+                binaryResult = lastBinaryMatch[lastBinaryMatch.length - 1];
             } else {
-                // Buscar secuencia más larga de 0s y 1s
-                const matches = tapeContent.match(/[01]+/g);
-                if (matches) {
-                    binaryResult = matches[matches.length - 1]; // Tomar la última
-                }
-            }
-            
-            // Validar resultado
-            if (!/^[01]+$/.test(binaryResult)) {
                 throw new Error('No se encontró resultado binario válido');
             }
-            
-            return {
-                binary: binaryResult,
-                decimal: parseInt(binaryResult, 2).toString()
-            };
-            
-        } catch (error) {
-            console.warn(`⚠️ Error extrayendo resultado: ${error.message}`);
-            return { binary: '0', decimal: '0' };
         }
+        
+        console.log(`✅ Resultado extraído: ${binaryResult}`);
+        
+        return {
+            binary: binaryResult,
+            decimal: parseInt(binaryResult, 2).toString()
+        };
+        
+    } catch (error) {
+        console.warn(`⚠️ Error extrayendo resultado: ${error.message}`);
+        console.warn(`   Cinta: ${tapeContent}`);
+        return { binary: '0', decimal: '0' };
     }
+}
     
     /**
      * Cálculo directo para comparación y respaldo

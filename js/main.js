@@ -137,67 +137,96 @@ class BinaryCalculatorApp {
     }
     
     /**
-     * Calcula la expresión ingresada
+     * Calcula la expresión ingresada - CORREGIDA
      */
-    calculateExpression() {
-        const expression = document.getElementById('expression').value.trim();
+calculateExpression() {
+    const expression = document.getElementById('expression').value.trim();
+    
+    if (!expression) {
+        this.showError('Por favor ingresa una expresión binaria');
+        return;
+    }
+    
+    this.setProcessingState(true);
+    
+    try {
+        console.log(`🧮 Procesando expresión: ${expression}`);
         
-        if (!expression) {
-            this.showError('Por favor ingresa una expresión binaria');
+        const evaluation = ExpressionParser.validateExpression(expression);
+        
+        if (!evaluation.success) {
+            let errorMessage = evaluation.error;
+            if (evaluation.correction && evaluation.correction.hasCorrections) {
+                errorMessage += `\n\n💡 ${evaluation.correction.suggestion}`;
+                this.showCorrectionSuggestion(evaluation.correction);
+            }
+            this.showError(errorMessage);
             return;
         }
         
-        this.setProcessingState(true);
-        
-        try {
-            console.log(`🧮 Procesando expresión: ${expression}`);
-            
-            // Usar parser mejorado
-            const evaluation = ExpressionParser.validateExpression(expression);
-            
-            if (!evaluation.success) {
-                let errorMessage = evaluation.error;
-                if (evaluation.correction && evaluation.correction.hasCorrections) {
-                    errorMessage += `\n\n💡 ${evaluation.correction.suggestion}`;
-                    this.showCorrectionSuggestion(evaluation.correction);
-                }
-                this.showError(errorMessage);
-                return;
-            }
-            
-            if (evaluation.usedCorrection) {
-                this.showNotification(
-                    `Expresión corregida automáticamente: "${evaluation.correction.corrected}"`, 
-                    'info'
-                );
-                document.getElementById('expression').value = evaluation.correction.corrected;
-            }
-            
-            this.currentEvaluation = evaluation;
-            this.currentMachineIndex = 0;
-            
-            // Mostrar resultado
-            this.visualization.updateResult(evaluation.result);
-            
-            // Mostrar información sobre las máquinas ejecutadas
-            this.showMachineExecutionSummary(evaluation);
-            
-            // Si hay máquinas, mostrar la primera
-            if (evaluation.machines && evaluation.machines.length > 0) {
-                this.loadMachine(0);
-                document.getElementById('step-btn').disabled = false;
-            }
-            
-            // Mostrar resumen detallado
-            this.showEvaluationSummary(evaluation);
-            
-        } catch (error) {
-            console.error('❌ Error en calculateExpression:', error);
-            this.showError(`Error inesperado: ${error.message}`);
-        } finally {
-            this.setProcessingState(false);
+        if (evaluation.usedCorrection) {
+            this.showNotification(
+                `Expresión corregida automáticamente: "${evaluation.correction.corrected}"`, 
+                'info'
+            );
+            document.getElementById('expression').value = evaluation.correction.corrected;
         }
+        
+        this.currentEvaluation = evaluation;
+        
+        // CORRECCIÓN 10: Cargar la ÚLTIMA máquina (resultado final) por defecto
+        if (evaluation.machines && evaluation.machines.length > 0) {
+            this.currentMachineIndex = evaluation.machines.length - 1; // Última máquina
+            this.loadMachine(this.currentMachineIndex);
+            document.getElementById('step-btn').disabled = false;
+        }
+        
+        // Mostrar resultado
+        this.visualization.updateResult(evaluation.result);
+        
+        // CORRECCIÓN 11: Actualizar contadores en la interfaz
+        this.updateResultCounters(evaluation);
+        
+        // Mostrar información sobre las máquinas ejecutadas
+        this.showMachineExecutionSummary(evaluation);
+        
+        // Mostrar resumen detallado
+        this.showEvaluationSummary(evaluation);
+        
+    } catch (error) {
+        console.error('❌ Error en calculateExpression:', error);
+        this.showError(`Error inesperado: ${error.message}`);
+    } finally {
+        this.setProcessingState(false);
     }
+}
+
+//NUEVA FUNCION
+
+updateResultCounters(evaluation) {
+    const machinesCountElement = document.getElementById('machines-count');
+    const totalStepsElement = document.getElementById('total-steps');
+    
+    if (machinesCountElement && evaluation && evaluation.machines) {
+        machinesCountElement.textContent = evaluation.machines.length.toString();
+        
+        const totalSteps = evaluation.machines.reduce((sum, m) => sum + m.machine.history.length, 0);
+        if (totalStepsElement) {
+            totalStepsElement.textContent = totalSteps.toString();
+        }
+        
+        // Añadir efectos visuales
+        machinesCountElement.style.animation = 'pulse 0.5s ease';
+        totalStepsElement.style.animation = 'pulse 0.5s ease';
+        
+        setTimeout(() => {
+            machinesCountElement.style.animation = '';
+            totalStepsElement.style.animation = '';
+        }, 500);
+    }
+}
+
+// AQUI TERMINA FUNCION NUEVA
     
     /**
      * Muestra resumen de la ejecución de máquinas

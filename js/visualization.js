@@ -319,98 +319,133 @@ class TuringVisualization {
     }
     
     /**
-     * Actualiza la visualización de la cinta con mejoras
+     * Actualiza la visualización de la cinta con mejoras - CORREGIDA
      */
-    updateTape() {
-        if (!this.currentMachine) return;
-        
-        const currentState = this.getCurrentMachineState();
-        const tape = currentState.tape;
-        const headPosition = currentState.head;
-        
-        // Limpiar cinta
-        this.tapeElement.innerHTML = '';
-        
-        // Determinar rango óptimo para mostrar
-        const minIndex = Math.min(0, headPosition - 8);
-        const maxIndex = Math.max(tape.length - 1, headPosition + 8);
-        
-        // Crear celdas con información mejorada
-        for (let i = minIndex; i <= maxIndex; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'tape-cell';
-            
-            // Contenido de la celda
-            let content = '';
-            if (i >= 0 && i < tape.length) {
-                content = tape[i] || 'B';
-            } else {
-                content = 'B';
-            }
-            
-            // Aplicar estilos según el tipo de símbolo
-            cell.textContent = content;
-            cell.style.color = this.getSymbolColor(content);
-            
-            // Marcar celda actual
-            if (i === headPosition) {
-                cell.classList.add('current');
-                cell.setAttribute('title', `Posición ${i}: ${content} (Cabezal aquí)`);
-            } else {
-                cell.setAttribute('title', `Posición ${i}: ${content}`);
-            }
-            
-            // Marcar tipos especiales de celdas
-            if (content === 'B') {
-                cell.classList.add('empty');
-            } else if (['X', 'Y', 'C'].includes(content)) {
-                cell.classList.add('marker');
-            } else if (['#'].includes(content)) {
-                cell.classList.add('separator');
-            }
-            
-            // Añadir índice de posición
-            if (this.showSymbolDetails) {
-                const positionLabel = document.createElement('div');
-                positionLabel.style.cssText = `
-                    font-size: 0.6rem;
-                    color: #a0aec0;
-                    position: absolute;
-                    top: -12px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                `;
-                positionLabel.textContent = i;
-                cell.style.position = 'relative';
-                cell.appendChild(positionLabel);
-            }
-            
-            this.tapeElement.appendChild(cell);
+updateTape() {
+    if (!this.currentMachine) return;
+    
+    const currentState = this.getCurrentMachineState();
+    const tape = currentState.tape;
+    const headPosition = currentState.head;
+    
+    // Limpiar cinta
+    this.tapeElement.innerHTML = '';
+    
+    // CORRECCIÓN 1: Manejar mejor las posiciones negativas
+    // Encontrar el rango real de datos en la cinta
+    let firstNonBlank = -1;
+    let lastNonBlank = -1;
+    
+    for (let i = 0; i < tape.length; i++) {
+        if (tape[i] && tape[i] !== 'B') {
+            if (firstNonBlank === -1) firstNonBlank = i;
+            lastNonBlank = i;
         }
-        
-        // Actualizar posición del cabezal
-        this.updateTapeHead(headPosition, minIndex);
     }
     
+    // Si la cinta está vacía, mostrar alrededor del cabezal
+    if (firstNonBlank === -1) {
+        firstNonBlank = Math.max(0, headPosition - 3);
+        lastNonBlank = headPosition + 3;
+    }
+    
+    // Expandir el rango para incluir el cabezal y contexto
+    const minIndex = Math.min(firstNonBlank - 2, headPosition - 5, 0);
+    const maxIndex = Math.max(lastNonBlank + 2, headPosition + 5, tape.length - 1);
+    
+    // CORRECCIÓN 2: Asegurar que el índice 0 siempre sea visible para referencia
+    const displayMinIndex = Math.min(minIndex, 0);
+    const displayMaxIndex = Math.max(maxIndex, Math.max(headPosition + 3, tape.length + 2));
+    
+    console.log(`📏 Mostrando cinta desde ${displayMinIndex} hasta ${displayMaxIndex}, cabezal en ${headPosition}`);
+    
+    // Crear celdas con información mejorada
+    for (let i = displayMinIndex; i <= displayMaxIndex; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'tape-cell';
+        
+        // Contenido de la celda - CORRECCIÓN 3: Manejar índices negativos
+        let content = '';
+        if (i < 0) {
+            content = 'B'; // Posiciones negativas siempre son blanco
+        } else if (i >= 0 && i < tape.length) {
+            content = tape[i] || 'B';
+        } else {
+            content = 'B';
+        }
+        
+        // Aplicar estilos según el tipo de símbolo
+        cell.textContent = content;
+        cell.style.color = this.getSymbolColor(content);
+        
+        // Marcar celda actual
+        if (i === headPosition) {
+            cell.classList.add('current');
+            cell.setAttribute('title', `Posición ${i}: ${content} (Cabezal aquí)`);
+        } else {
+            cell.setAttribute('title', `Posición ${i}: ${content}`);
+        }
+        
+        // Marcar tipos especiales de celdas
+        if (content === 'B') {
+            cell.classList.add('empty');
+        } else if (['X', 'Y', 'C'].includes(content)) {
+            cell.classList.add('marker');
+        } else if (['#', '='].includes(content)) {
+            cell.classList.add('separator');
+        }
+        
+        // CORRECCIÓN 4: Añadir índice de posición con mejor manejo de negativos
+        if (this.showSymbolDetails) {
+            const positionLabel = document.createElement('div');
+            positionLabel.style.cssText = `
+                font-size: 0.6rem;
+                color: ${i < 0 ? '#f56565' : '#a0aec0'};
+                position: absolute;
+                top: -12px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-weight: ${i === 0 ? 'bold' : 'normal'};
+            `;
+            positionLabel.textContent = i;
+            cell.style.position = 'relative';
+            cell.appendChild(positionLabel);
+        }
+        
+        // CORRECCIÓN 5: Marcar posición 0 como referencia
+        if (i === 0) {
+            cell.style.borderBottom = '3px solid #4299e1';
+        }
+        
+        this.tapeElement.appendChild(cell);
+    }
+    
+    // Actualizar posición del cabezal - CORRECCIÓN 6: Ajustar para índices negativos
+    this.updateTapeHead(headPosition, displayMinIndex);
+}
+    
     /**
-     * Actualiza la posición del cabezal con animación
+     * Actualiza la posición del cabezal con animación - CORREGIDA
      * @param {number} headPosition - Posición del cabezal
      * @param {number} minIndex - Índice mínimo mostrado
      */
-    updateTapeHead(headPosition, minIndex) {
-        const cellWidth = 52; // 50px + 2px border
-        const offset = (headPosition - minIndex) * cellWidth + cellWidth / 2 - 12;
-        
-        // Animación suave del cabezal
-        this.tapeHeadElement.style.transition = 'left 0.3s ease';
-        this.tapeHeadElement.style.left = `${offset}px`;
-        
-        // Actualizar símbolo del cabezal para mayor claridad
-        this.tapeHeadElement.textContent = '▼';
-        this.tapeHeadElement.style.fontSize = '1.5rem';
-        this.tapeHeadElement.style.color = '#ffd700';
-        this.tapeHeadElement.style.textShadow = '0 2px 4px rgba(0,0,0,0.3)';
-    }
+updateTapeHead(headPosition, minIndex) {
+    const cellWidth = 52; // 50px + 2px border
+    const offset = (headPosition - minIndex) * cellWidth + cellWidth / 2 - 12;
+    
+    // Animación suave del cabezal
+    this.tapeHeadElement.style.transition = 'left 0.3s ease';
+    this.tapeHeadElement.style.left = `${Math.max(0, offset)}px`; // Evitar posiciones negativas del cabezal visual
+    
+    // Actualizar símbolo del cabezal para mayor claridad
+    this.tapeHeadElement.textContent = '▼';
+    this.tapeHeadElement.style.fontSize = '1.5rem';
+    this.tapeHeadElement.style.color = '#ffd700';
+    this.tapeHeadElement.style.textShadow = '0 2px 4px rgba(0,0,0,0.3)';
+    
+    // CORRECCIÓN 8: Añadir información de posición del cabezal
+    this.tapeHeadElement.setAttribute('title', `Cabezal en posición ${headPosition}`);
+}
     
     /**
      * Actualiza el estado de la máquina en la interfaz

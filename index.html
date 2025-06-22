@@ -1,228 +1,488 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MATHISON - Máquinas de Turing Reales</title>
-    <link rel="stylesheet" href="css/style.css">
-    <meta name="description" content="Calculadora binaria educativa con máquinas de Turing REALES ejecutándose paso a paso">
-    <meta name="keywords" content="máquina de turing, binario, calculadora, educación, ciencias de la computación, algoritmos reales">
-    <meta name="author" content="Proyecto Educativo MATHISON">
-    
+    <link rel="stylesheet" href="css/style.css" />
+    <meta
+      name="description"
+      content="Calculadora binaria educativa con máquinas de Turing REALES ejecutándose paso a paso"
+    />
+    <meta
+      name="keywords"
+      content="máquina de turing, binario, calculadora, educación, ciencias de la computación, algoritmos reales"
+    />
+    <meta name="author" content="Proyecto Educativo MATHISON" />
+
     <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
-    
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>"
+    />
+
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="">
-    <meta property="og:title" content="MATHISON - Máquinas de Turing Reales">
-    <meta property="og:description" content="Visualiza cómo las máquinas de Turing procesan operaciones binarias paso a paso de manera auténtica">
-    <meta property="og:image" content="">
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="" />
+    <meta property="og:title" content="MATHISON - Máquinas de Turing Reales" />
+    <meta
+      property="og:description"
+      content="Visualiza cómo las máquinas de Turing procesan operaciones binarias paso a paso de manera auténtica"
+    />
+    <meta property="og:image" content="" />
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="">
-    <meta property="twitter:title" content="MATHISON - Máquinas de Turing Reales">
-    <meta property="twitter:description" content="Calculadora educativa con máquinas de Turing auténticas">
-</head>
-<body>
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="" />
+    <meta
+      property="twitter:title"
+      content="MATHISON - Máquinas de Turing Reales"
+    />
+    <meta
+      property="twitter:description"
+      content="Calculadora educativa con máquinas de Turing auténticas"
+    />
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <h1>🤖 MATHISON</h1>
-            <p>Máquinas de Turing <strong>REALES</strong> procesando operaciones binarias paso a paso</p>
-            <div class="header-badges" style="margin-top: 15px;">
-                <span class="badge" style="background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 15px; font-size: 0.9rem; margin: 0 5px;">
-                    ✨ Ejecución Auténtica
-                </span>
-                <span class="badge" style="background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 15px; font-size: 0.9rem; margin: 0 5px;">
-                    🔍 Paso a Paso
-                </span>
-                <span class="badge" style="background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 15px; font-size: 0.9rem; margin: 0 5px;">
-                    📚 Educativo
-                </span>
+      <header>
+        <h1>🤖 MATHISON</h1>
+        <p>
+          Máquinas de Turing <strong>REALES</strong> procesando operaciones
+          binarias paso a paso
+        </p>
+        <div class="header-badges" style="margin-top: 15px">
+          <span
+            class="badge"
+            style="
+              background: rgba(255, 255, 255, 0.2);
+              padding: 5px 12px;
+              border-radius: 15px;
+              font-size: 0.9rem;
+              margin: 0 5px;
+            "
+          >
+            ✨ Ejecución Auténtica
+          </span>
+          <span
+            class="badge"
+            style="
+              background: rgba(255, 255, 255, 0.2);
+              padding: 5px 12px;
+              border-radius: 15px;
+              font-size: 0.9rem;
+              margin: 0 5px;
+            "
+          >
+            🔍 Paso a Paso
+          </span>
+          <span
+            class="badge"
+            style="
+              background: rgba(255, 255, 255, 0.2);
+              padding: 5px 12px;
+              border-radius: 15px;
+              font-size: 0.9rem;
+              margin: 0 5px;
+            "
+          >
+            📚 Educativo
+          </span>
+        </div>
+      </header>
+
+      <main>
+        <!-- Sección de cálculo -->
+        <section class="calculator-section">
+          <h2>🧮 Calculadora Binaria</h2>
+
+          <div class="input-group">
+            <label for="expression">Expresión Binaria:</label>
+            <input
+              type="text"
+              id="expression"
+              placeholder="Ej: (1 + 1) * 10 - ¡Prueba máquinas reales!"
+              class="expression-input"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button id="calculate-btn" class="calculate-btn">
+              🚀 Calcular
+            </button>
+            <button id="step-btn" class="step-btn" disabled>
+              👁️ Paso a Paso
+            </button>
+            <button id="reset-btn" class="reset-btn">🔄 Reiniciar</button>
+          </div>
+
+          <!-- Panel de ejemplos rápidos -->
+          <div
+            class="quick-examples"
+            style="
+              margin: 15px 0;
+              padding: 15px;
+              background: #e6fffa;
+              border-radius: 8px;
+              border-left: 4px solid #38a169;
+            "
+          >
+            <h4 style="margin: 0 0 10px 0; color: #38a169">
+              🎯 Ejemplos Rápidos (haz clic para probar):
+            </h4>
+            <div
+              class="example-buttons"
+              style="display: flex; flex-wrap: wrap; gap: 8px"
+            >
+              <button
+                class="example-btn"
+                onclick="loadExample('1 + 1')"
+                style="
+                  padding: 6px 12px;
+                  background: white;
+                  border: 1px solid #38a169;
+                  border-radius: 4px;
+                  cursor: pointer;
+                  font-size: 0.9rem;
+                "
+              >
+                1 + 1 (Real)
+              </button>
+              <button
+                class="example-btn"
+                onclick="loadExample('10 + 11')"
+                style="
+                  padding: 6px 12px;
+                  background: white;
+                  border: 1px solid #38a169;
+                  border-radius: 4px;
+                  cursor: pointer;
+                  font-size: 0.9rem;
+                "
+              >
+                10 + 11
+              </button>
+              <button
+                class="example-btn"
+                onclick="loadExample('101 + 110')"
+                style="
+                  padding: 6px 12px;
+                  background: white;
+                  border: 1px solid #38a169;
+                  border-radius: 4px;
+                  cursor: pointer;
+                  font-size: 0.9rem;
+                "
+              >
+                101 + 110
+              </button>
+              <button
+                class="example-btn"
+                onclick="loadExample('(1 + 1) * 10')"
+                style="
+                  padding: 6px 12px;
+                  background: white;
+                  border: 1px solid #38a169;
+                  border-radius: 4px;
+                  cursor: pointer;
+                  font-size: 0.9rem;
+                "
+              >
+                (1 + 1) * 10
+              </button>
+              <button
+                class="example-btn"
+                onclick="loadExample('1100 / 11')"
+                style="
+                  padding: 6px 12px;
+                  background: white;
+                  border: 1px solid #38a169;
+                  border-radius: 4px;
+                  cursor: pointer;
+                  font-size: 0.9rem;
+                "
+              >
+                1100 / 11
+              </button>
+              <button
+                class="example-btn"
+                onclick="loadRandomExample()"
+                style="
+                  padding: 6px 12px;
+                  background: #4299e1;
+                  color: white;
+                  border: none;
+                  border-radius: 4px;
+                  cursor: pointer;
+                  font-size: 0.9rem;
+                "
+              >
+                🎲 Aleatorio
+              </button>
             </div>
-        </header>
+          </div>
 
-        <main>
-            <!-- Sección de cálculo -->
-            <section class="calculator-section">
-                <h2>🧮 Calculadora Binaria</h2>
-                
-                <div class="input-group">
-                    <label for="expression">Expresión Binaria:</label>
-                    <input type="text" 
-                           id="expression" 
-                           placeholder="Ej: (1 + 1) * 10 - ¡Prueba máquinas reales!"
-                           class="expression-input"
-                           autocomplete="off"
-                           spellcheck="false">
-                    <button id="calculate-btn" class="calculate-btn">🚀 Calcular</button>
-                    <button id="step-btn" class="step-btn" disabled>👁️ Paso a Paso</button>
-                    <button id="reset-btn" class="reset-btn">🔄 Reiniciar</button>
-                </div>
-                
-                <!-- Panel de ejemplos rápidos -->
-                <div class="quick-examples" style="margin: 15px 0; padding: 15px; background: #e6fffa; border-radius: 8px; border-left: 4px solid #38a169;">
-                    <h4 style="margin: 0 0 10px 0; color: #38a169;">🎯 Ejemplos Rápidos (haz clic para probar):</h4>
-                    <div class="example-buttons" style="display: flex; flex-wrap: wrap; gap: 8px;">
-                        <button class="example-btn" onclick="loadExample('1 + 1')" style="padding: 6px 12px; background: white; border: 1px solid #38a169; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">1 + 1 (Real)</button>
-                        <button class="example-btn" onclick="loadExample('10 + 11')" style="padding: 6px 12px; background: white; border: 1px solid #38a169; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">10 + 11</button>
-                        <button class="example-btn" onclick="loadExample('101 + 110')" style="padding: 6px 12px; background: white; border: 1px solid #38a169; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">101 + 110</button>
-                        <button class="example-btn" onclick="loadExample('(1 + 1) * 10')" style="padding: 6px 12px; background: white; border: 1px solid #38a169; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">(1 + 1) * 10</button>
-                        <button class="example-btn" onclick="loadExample('1100 / 11')" style="padding: 6px 12px; background: white; border: 1px solid #38a169; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">1100 / 11</button>
-                        <button class="example-btn" onclick="loadRandomExample()" style="padding: 6px 12px; background: #4299e1; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">🎲 Aleatorio</button>
-                    </div>
-                </div>
-                
-                <div class="help-text">
-                    <p><strong>🤖 MÁQUINAS DE TURING REALES:</strong> Esta calculadora ejecuta auténticas máquinas de Turing que procesan operaciones binarias paso a paso</p>
-                    <p><strong>Operadores soportados:</strong> + (suma), - (resta), * (multiplicación), / (división)</p>
-                    <p><strong>Paréntesis:</strong> Usa ( ) para cambiar el orden de las operaciones</p>
-                    <p><strong>Navegación:</strong> ← → para pasos, Espacio para auto-play, clic en pasos para saltar</p>
-                    <p><strong>📜 Control de Scroll:</strong> El botón "Scroll OFF/ON" controla si la vista salta automáticamente al historial. Por defecto está desactivado para mejor observación de la cinta.</p>
-                    <p><strong>💡 Tip:</strong> Prueba primero con "1 + 1" para ver una máquina completamente real, luego experimenta con expresiones complejas</p>
-                </div>
-            </section>
+          <div class="help-text">
+            <p>
+              <strong>🤖 MÁQUINAS DE TURING REALES:</strong> Esta calculadora
+              ejecuta auténticas máquinas de Turing que procesan operaciones
+              binarias paso a paso
+            </p>
+            <p>
+              <strong>Operadores soportados:</strong> + (suma), - (resta), *
+              (multiplicación), / (división)
+            </p>
+            <p>
+              <strong>Paréntesis:</strong> Usa ( ) para cambiar el orden de las
+              operaciones
+            </p>
+            <p>
+              <strong>Navegación:</strong> ← → para pasos, Espacio para
+              auto-play, clic en pasos para saltar
+            </p>
+            <p>
+              <strong>📜 Control de Scroll:</strong> El botón "Scroll OFF/ON"
+              controla si la vista salta automáticamente al historial. Por
+              defecto está desactivado para mejor observación de la cinta.
+            </p>
+            <p>
+              <strong>💡 Tip:</strong> Prueba primero con "1 + 1" para ver una
+              máquina completamente real, luego experimenta con expresiones
+              complejas
+            </p>
+          </div>
+        </section>
 
-            <!-- Sección de visualización -->
-            <section class="visualization-section">
-                <div class="machine-info">
-                    <h3>🔧 Estado de la Máquina de Turing</h3>
-                    <div class="machine-status">
-                        <div class="status-item">
-                            <span class="label">Operación:</span>
-                            <span id="current-operation" class="value">-</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="label">Estado:</span>
-                            <span id="current-state" class="value">q0</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="label">Posición:</span>
-                            <span id="head-position" class="value">0</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="label">Símbolo Actual:</span>
-                            <span id="current-symbol" class="value">-</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="label">Transición:</span>
-                            <span id="current-transition" class="value">-</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="label">Paso:</span>
-                            <span id="current-step-display" class="value">0/0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tape-container">
-                    <h3>🎞️ Cinta de la Máquina de Turing</h3>
-                    <div class="tape-wrapper">
-                        <div id="tape" class="tape">
-                            <div class="tape-cell empty">B</div>
-                        </div>
-                        <div id="tape-head" class="tape-head">▼</div>
-                    </div>
-                    
-                    <!-- Leyenda de símbolos -->
-                    <div class="symbol-legend">
-                        <h4>📖 Leyenda de Símbolos:</h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px;">
-                            <span><strong>0, 1:</strong> Dígitos binarios</span>
-                            <span><strong>#:</strong> Separador</span>
-                            <span><strong>X, Y:</strong> Marcadores</span>
-                            <span><strong>B:</strong> Blanco/vacío</span>
-                            <span><strong>+, -, *, /:</strong> Operadores</span>
-                            <span><strong>C:</strong> Acarreo</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Controles de navegación -->
-                <div class="controls">
-                    <button id="prev-step" class="control-btn" disabled>⏮️ Anterior</button>
-                    <button id="next-step" class="control-btn" disabled>⏭️ Siguiente</button>
-                    <button id="auto-play" class="control-btn" disabled>▶️ Auto</button>
-                    
-                    <div class="speed-control" style="display: flex; align-items: center; gap: 10px;">
-                        <span class="speed-label">Velocidad: Normal</span>
-                        <input type="range" id="speed-slider" min="100" max="2000" value="800" class="speed-slider">
-                    </div>
-                    
-                    <button id="help-btn" class="control-btn" onclick="showHelp()" style="background: #38a169;">❓ Ayuda</button>
-                </div>
-                
-                <!-- Instrucciones de teclado -->
-                <div class="keyboard-instructions" style="margin-top: 10px; text-align: center; font-size: 0.9rem; color: #4a5568;">
-                    <strong>⌨️ Atajos:</strong> ← → (navegar pasos) | Espacio (auto-play) | S (toggle scroll) | Enter (calcular)
-                </div>
-            </section>
-
-            <!-- Sección de resultado -->
-            <section class="result-section">
-                <h3>📊 Resultado</h3>
-                <div class="result-display">
-                    <div class="result-item">
-                        <span class="label">Binario:</span>
-                        <span id="result-binary" class="result-value">-</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="label">Decimal:</span>
-                        <span id="result-decimal" class="result-value">-</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="label">Máquinas Ejecutadas:</span>
-                        <span id="machines-count" class="result-value">0</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="label">Pasos Totales:</span>
-                        <span id="total-steps" class="result-value">0</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Sección de historial de pasos -->
-            <section class="steps-section">
-                <h3>📜 Historial de Ejecución</h3>
-                <div id="steps-log" class="steps-log">
-                    <div class="welcome-message" style="text-align: center; padding: 30px; color: #4a5568;">
-                        <h4 style="margin-bottom: 15px;">🚀 ¡Bienvenido a MATHISON!</h4>
-                        <p style="margin-bottom: 10px;">Ingresa una expresión binaria arriba para ver máquinas de Turing <strong>reales</strong> en acción.</p>
-                        <p style="font-size: 0.9rem; opacity: 0.8;">Cada paso que verás es una transición auténtica de una máquina de Turing procesando tu operación.</p>
-                        
-                        <div style="margin-top: 20px; padding: 15px; background: #f0f8ff; border-radius: 8px; text-align: left;">
-                            <h5 style="margin-bottom: 10px; color: #2d3748;">🎯 Sugerencias para empezar:</h5>
-                            <ul style="margin-left: 20px; font-size: 0.9rem;">
-                                <li>Prueba <strong>"1 + 1"</strong> para ver una máquina simple pero real</li>
-                                <li>Luego <strong>"10 + 11"</strong> para algoritmos más complejos</li>
-                                <li>Finalmente <strong>"(1 + 1) * 10"</strong> para múltiples máquinas</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <footer>
-            <div style="text-align: center; padding: 20px 0;">
-                <p>🤖 <strong>MATHISON</strong> - Implementación educativa de Máquinas de Turing reales para operaciones binarias</p>
-                <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 8px;">
-                    Desarrollado con ❤️ para enseñar los fundamentos de la computación teórica
-                </p>
-                <div style="margin-top: 15px;">
-                    <span style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; margin: 0 5px;">
-                        JavaScript Puro
-                    </span>
-                    <span style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; margin: 0 5px;">
-                        Algoritmos Auténticos
-                    </span>
-                    <span style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; margin: 0 5px;">
-                        Código Abierto
-                    </span>
-                </div>
+        <!-- Sección de visualización -->
+        <section class="visualization-section">
+          <div class="machine-info">
+            <h3>🔧 Estado de la Máquina de Turing</h3>
+            <div class="machine-status">
+              <div class="status-item">
+                <span class="label">Operación:</span>
+                <span id="current-operation" class="value">-</span>
+              </div>
+              <div class="status-item">
+                <span class="label">Estado:</span>
+                <span id="current-state" class="value">q0</span>
+              </div>
+              <div class="status-item">
+                <span class="label">Posición:</span>
+                <span id="head-position" class="value">0</span>
+              </div>
+              <div class="status-item">
+                <span class="label">Símbolo Actual:</span>
+                <span id="current-symbol" class="value">-</span>
+              </div>
+              <div class="status-item">
+                <span class="label">Transición:</span>
+                <span id="current-transition" class="value">-</span>
+              </div>
+              <div class="status-item">
+                <span class="label">Paso:</span>
+                <span id="current-step-display" class="value">0/0</span>
+              </div>
             </div>
-        </footer>
+          </div>
+
+          <div class="tape-container">
+            <h3>🎞️ Cinta de la Máquina de Turing</h3>
+            <div class="tape-wrapper">
+              <div id="tape" class="tape">
+                <div class="tape-cell empty">B</div>
+              </div>
+              <div id="tape-head" class="tape-head">▼</div>
+            </div>
+
+            <!-- Leyenda de símbolos -->
+            <div class="symbol-legend">
+              <h4>📖 Leyenda de Símbolos:</h4>
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                  gap: 8px;
+                "
+              >
+                <span><strong>0, 1:</strong> Dígitos binarios</span>
+                <span><strong>#:</strong> Separador</span>
+                <span><strong>X, Y:</strong> Marcadores</span>
+                <span><strong>B:</strong> Blanco/vacío</span>
+                <span><strong>+, -, *, /:</strong> Operadores</span>
+                <span><strong>C:</strong> Acarreo</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controles de navegación -->
+          <div class="controls">
+            <button id="prev-step" class="control-btn" disabled>
+              ⏮️ Anterior
+            </button>
+            <button id="next-step" class="control-btn" disabled>
+              ⏭️ Siguiente
+            </button>
+            <button id="auto-play" class="control-btn" disabled>▶️ Auto</button>
+
+            <div
+              class="speed-control"
+              style="display: flex; align-items: center; gap: 10px"
+            >
+              <span class="speed-label">Velocidad: Normal</span>
+              <input
+                type="range"
+                id="speed-slider"
+                min="100"
+                max="2000"
+                value="800"
+                class="speed-slider"
+              />
+            </div>
+
+            <button
+              id="help-btn"
+              class="control-btn"
+              onclick="showHelp()"
+              style="background: #38a169"
+            >
+              ❓ Ayuda
+            </button>
+          </div>
+
+          <!-- Instrucciones de teclado -->
+          <div
+            class="keyboard-instructions"
+            style="
+              margin-top: 10px;
+              text-align: center;
+              font-size: 0.9rem;
+              color: #4a5568;
+            "
+          >
+            <strong>⌨️ Atajos:</strong> ← → (navegar pasos) | Espacio
+            (auto-play) | S (toggle scroll) | Enter (calcular)
+          </div>
+        </section>
+
+        <!-- Sección de resultado -->
+        <section class="result-section">
+          <h3>📊 Resultado</h3>
+          <div class="result-display">
+            <div class="result-item">
+              <span class="label">Binario:</span>
+              <span id="result-binary" class="result-value">-</span>
+            </div>
+            <div class="result-item">
+              <span class="label">Decimal:</span>
+              <span id="result-decimal" class="result-value">-</span>
+            </div>
+            <div class="result-item">
+              <span class="label">Máquinas Ejecutadas:</span>
+              <span id="machines-count" class="result-value">0</span>
+            </div>
+            <div class="result-item">
+              <span class="label">Pasos Totales:</span>
+              <span id="total-steps" class="result-value">0</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Sección de historial de pasos -->
+        <section class="steps-section">
+          <h3>📜 Historial de Ejecución</h3>
+          <div id="steps-log" class="steps-log">
+            <div
+              class="welcome-message"
+              style="text-align: center; padding: 30px; color: #4a5568"
+            >
+              <h4 style="margin-bottom: 15px">🚀 ¡Bienvenido a MATHISON!</h4>
+              <p style="margin-bottom: 10px">
+                Ingresa una expresión binaria arriba para ver máquinas de Turing
+                <strong>reales</strong> en acción.
+              </p>
+              <p style="font-size: 0.9rem; opacity: 0.8">
+                Cada paso que verás es una transición auténtica de una máquina
+                de Turing procesando tu operación.
+              </p>
+
+              <div
+                style="
+                  margin-top: 20px;
+                  padding: 15px;
+                  background: #f0f8ff;
+                  border-radius: 8px;
+                  text-align: left;
+                "
+              >
+                <h5 style="margin-bottom: 10px; color: #2d3748">
+                  🎯 Sugerencias para empezar:
+                </h5>
+                <ul style="margin-left: 20px; font-size: 0.9rem">
+                  <li>
+                    Prueba <strong>"1 + 1"</strong> para ver una máquina simple
+                    pero real
+                  </li>
+                  <li>
+                    Luego <strong>"10 + 11"</strong> para algoritmos más
+                    complejos
+                  </li>
+                  <li>
+                    Finalmente <strong>"(1 + 1) * 10"</strong> para múltiples
+                    máquinas
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <div style="text-align: center; padding: 20px 0">
+          <p>
+            🤖 <strong>MATHISON</strong> - Implementación educativa de Máquinas
+            de Turing reales para operaciones binarias
+          </p>
+          <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 8px">
+            Desarrollado con ❤️ para enseñar los fundamentos de la computación
+            teórica
+          </p>
+          <div style="margin-top: 15px">
+            <span
+              style="
+                background: rgba(255, 255, 255, 0.2);
+                padding: 5px 10px;
+                border-radius: 15px;
+                font-size: 0.8rem;
+                margin: 0 5px;
+              "
+            >
+              JavaScript Puro
+            </span>
+            <span
+              style="
+                background: rgba(255, 255, 255, 0.2);
+                padding: 5px 10px;
+                border-radius: 15px;
+                font-size: 0.8rem;
+                margin: 0 5px;
+              "
+            >
+              Algoritmos Auténticos
+            </span>
+            <span
+              style="
+                background: rgba(255, 255, 255, 0.2);
+                padding: 5px 10px;
+                border-radius: 15px;
+                font-size: 0.8rem;
+                margin: 0 5px;
+              "
+            >
+              Código Abierto
+            </span>
+          </div>
+        </div>
+      </footer>
     </div>
 
     <!-- Scripts -->
@@ -231,49 +491,58 @@
     <script src="js/expression-parser.js"></script>
     <script src="js/visualization.js"></script>
     <script src="js/main.js"></script>
-    
+
     <!-- Scripts adicionales para funcionalidad mejorada -->
     <script>
-        // Función para cargar ejemplos desde botones
-        function loadExample(expression) {
-            document.getElementById('expression').value = expression;
-            if (window.app) {
-                app.showNotification(`Ejemplo cargado: ${expression}`, 'info');
-                setTimeout(() => {
-                    app.calculateExpression();
-                }, 200);
-            }
+      // Función para cargar ejemplos desde botones
+      function loadExample(expression) {
+        document.getElementById("expression").value = expression;
+        if (window.app) {
+          app.showNotification(`Ejemplo cargado: ${expression}`, "info");
+          setTimeout(() => {
+            app.calculateExpression();
+          }, 200);
         }
-        
-        // Función para cargar ejemplo aleatorio
-        function loadRandomExample() {
-            if (window.ExpressionParser) {
-                const examples = ExpressionParser.getExamples();
-                const allExamples = [...examples.simple, ...examples.medium, ...examples.complex];
-                const randomExample = allExamples[Math.floor(Math.random() * allExamples.length)];
-                loadExample(randomExample);
-            }
+      }
+
+      // Función para cargar ejemplo aleatorio
+      function loadRandomExample() {
+        if (window.ExpressionParser) {
+          const examples = ExpressionParser.getExamples();
+          const allExamples = [
+            ...examples.simple,
+            ...examples.medium,
+            ...examples.complex,
+          ];
+          const randomExample =
+            allExamples[Math.floor(Math.random() * allExamples.length)];
+          loadExample(randomExample);
         }
-        
-        // Actualizar contadores en la sección de resultado
-        function updateResultCounters(evaluation) {
-            const machinesCountElement = document.getElementById('machines-count');
-            const totalStepsElement = document.getElementById('total-steps');
-            
-            if (machinesCountElement && evaluation && evaluation.machines) {
-                machinesCountElement.textContent = evaluation.machines.length.toString();
-                
-                const totalSteps = evaluation.machines.reduce((sum, m) => sum + m.machine.history.length, 0);
-                if (totalStepsElement) {
-                    totalStepsElement.textContent = totalSteps.toString();
-                }
-            }
+      }
+
+      // Actualizar contadores en la sección de resultado
+      function updateResultCounters(evaluation) {
+        const machinesCountElement = document.getElementById("machines-count");
+        const totalStepsElement = document.getElementById("total-steps");
+
+        if (machinesCountElement && evaluation && evaluation.machines) {
+          machinesCountElement.textContent =
+            evaluation.machines.length.toString();
+
+          const totalSteps = evaluation.machines.reduce(
+            (sum, m) => sum + m.machine.history.length,
+            0
+          );
+          if (totalStepsElement) {
+            totalStepsElement.textContent = totalSteps.toString();
+          }
         }
-        
-        // Event listener para actualizar contadores cuando se carga la aplicación
-        document.addEventListener('DOMContentLoaded', function() {
-            // Mensaje de bienvenida en consola
-            console.log(`
+      }
+
+      // Event listener para actualizar contadores cuando se carga la aplicación
+      document.addEventListener("DOMContentLoaded", function () {
+        // Mensaje de bienvenida en consola
+        console.log(`
 🤖 MATHISON - Máquinas de Turing Reales Cargado
 ==============================================
 
@@ -291,105 +560,184 @@
 
 📚 Usa F12 para ver logs detallados de ejecución
             `);
-            
-            // Configurar tooltips y ayudas adicionales
-            const expressionInput = document.getElementById('expression');
-            if (expressionInput) {
-                expressionInput.addEventListener('focus', function() {
-                    this.setAttribute('title', 'Ingresa expresiones como: 1+1, (10+11)*10, 101-11. Usa solo dígitos binarios (0,1) y operadores (+,-,*,/)');
-                });
-            }
+
+        // Configurar tooltips y ayudas adicionales
+        const expressionInput = document.getElementById("expression");
+        if (expressionInput) {
+          expressionInput.addEventListener("focus", function () {
+            this.setAttribute(
+              "title",
+              "Ingresa expresiones como: 1+1, (10+11)*10, 101-11. Usa solo dígitos binarios (0,1) y operadores (+,-,*,/)"
+            );
+          });
+        }
+      });
+
+      // Interceptar eventos de la aplicación para actualizar contadores
+      if (window.addEventListener) {
+        window.addEventListener("calculationComplete", function (event) {
+          if (event.detail && event.detail.evaluation) {
+            updateResultCounters(event.detail.evaluation);
+          }
         });
-        
-        // Interceptar eventos de la aplicación para actualizar contadores
-        if (window.addEventListener) {
-            window.addEventListener('calculationComplete', function(event) {
-                if (event.detail && event.detail.evaluation) {
-                    updateResultCounters(event.detail.evaluation);
-                }
-            });
-        }
-        
-        // Analytics y seguimiento (opcional)
-        function trackUsage(action, details) {
-            console.log(`📊 Uso registrado: ${action}`, details);
-            // Aquí podrías agregar analytics reales si lo deseas
-        }
-        
-        // Función para mostrar información del sistema
-        function showSystemInfo() {
-            const info = {
-                userAgent: navigator.userAgent,
-                language: navigator.language,
-                screen: `${screen.width}x${screen.height}`,
-                viewport: `${window.innerWidth}x${window.innerHeight}`,
-                timestamp: new Date().toISOString()
-            };
-            
-            console.log('💻 Información del sistema:', info);
-            return info;
-        }
-        
-        // Mostrar información al cargar
-        setTimeout(showSystemInfo, 1000);
+      }
+
+      // Analytics y seguimiento (opcional)
+      function trackUsage(action, details) {
+        console.log(`📊 Uso registrado: ${action}`, details);
+        // Aquí podrías agregar analytics reales si lo deseas
+      }
+
+      // Función para mostrar información del sistema
+      function showSystemInfo() {
+        const info = {
+          userAgent: navigator.userAgent,
+          language: navigator.language,
+          screen: `${screen.width}x${screen.height}`,
+          viewport: `${window.innerWidth}x${window.innerHeight}`,
+          timestamp: new Date().toISOString(),
+        };
+
+        console.log("💻 Información del sistema:", info);
+        return info;
+      }
+
+      // Mostrar información al cargar
+      setTimeout(showSystemInfo, 1000);
     </script>
 
     <!-- Estilos adicionales para mejoras específicas -->
     <style>
-        .example-btn:hover {
-            background: #f0f8ff !important;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      .example-btn:hover {
+        background: #f0f8ff !important;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .welcome-message {
+        animation: fadeIn 1s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
         }
-        
-        .welcome-message {
-            animation: fadeIn 1s ease-in;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+      }
+
+      .header-badges .badge {
+        animation: slideInDown 0.6s ease-out;
+        animation-fill-mode: both;
+      }
+
+      .header-badges .badge:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .header-badges .badge:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .header-badges .badge:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      @keyframes slideInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
         }
-        
-        .header-badges .badge {
-            animation: slideInDown 0.6s ease-out;
-            animation-fill-mode: both;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
-        
-        .header-badges .badge:nth-child(1) { animation-delay: 0.1s; }
-        .header-badges .badge:nth-child(2) { animation-delay: 0.2s; }
-        .header-badges .badge:nth-child(3) { animation-delay: 0.3s; }
-        
-        @keyframes slideInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+      }
+
+      /* Mejora de accesibilidad */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
         }
-        
-        /* Mejora de accesibilidad */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
+      }
+
+      /* Modo alto contraste */
+      @media (prefers-contrast: high) {
+        .tape-cell {
+          border-width: 3px;
         }
-        
-        /* Modo alto contraste */
-        @media (prefers-contrast: high) {
-            .tape-cell {
-                border-width: 3px;
-            }
-            
-            .control-btn {
-                border: 2px solid currentColor;
-            }
+
+        .control-btn {
+          border: 2px solid currentColor;
         }
+      }
     </style>
-</body>
+    <script>
+      // Función mejorada para cargar ejemplos
+      function loadExample(expression) {
+        document.getElementById("expression").value = expression;
+        if (window.app) {
+          app.showNotification(`Ejemplo cargado: ${expression}`, "info");
+          setTimeout(() => {
+            app.calculateExpression();
+          }, 200);
+        }
+      }
+
+      // Atajo de teclado para mostrar máquina final
+      document.addEventListener("keydown", function (e) {
+        if (
+          e.key === "F" &&
+          e.ctrlKey &&
+          window.app &&
+          window.app.currentEvaluation
+        ) {
+          e.preventDefault();
+          const machines = window.app.currentEvaluation.machines;
+          if (machines && machines.length > 0) {
+            window.app.loadMachine(machines.length - 1); // Cargar última máquina
+            window.app.showNotification(
+              "Mostrando máquina con resultado final",
+              "info"
+            );
+          }
+        }
+      });
+
+      // CORRECCIÓN 17: Función para debug de cinta
+      function debugTapeState() {
+        if (
+          window.app &&
+          window.app.visualization &&
+          window.app.visualization.currentMachine
+        ) {
+          const machine = window.app.visualization.currentMachine;
+          const currentState =
+            machine.history[window.app.visualization.currentStep] ||
+            machine.getStatus();
+
+          console.log("🔧 DEBUG DE CINTA:");
+          console.log("  Cinta completa:", currentState.tape);
+          console.log("  Posición cabezal:", currentState.head);
+          console.log("  Estado actual:", currentState.state);
+          console.log("  Contenido cinta:", machine.getTapeContent());
+          console.log(
+            "  Símbolo actual:",
+            currentState.currentSymbol || machine.getCurrentSymbol()
+          );
+
+          return currentState;
+        }
+        return null;
+      }
+
+      // Exposer función de debug globalmente
+      window.debugTapeState = debugTapeState;
+    </script>
+  </body>
 </html>
