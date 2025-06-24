@@ -1,764 +1,943 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Binary Addition Turing Machine</title>
     <style>
-      body {
-        font-family: "Courier New", monospace;
-        margin: 0;
-        padding: 20px;
-        background: linear-gradient(135deg, #1e3c72, #2a5298);
-        color: white;
-        min-height: 100vh;
-      }
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            min-height: 100vh;
+        }
 
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 30px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
 
-      h1 {
-        text-align: center;
-        margin-bottom: 30px;
-        font-size: 2.5em;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-      }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
 
-      .input-section {
-        display: flex;
-        gap: 20px;
-        margin-bottom: 30px;
-        align-items: center;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
+        .input-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
 
-      .input-group {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
-      }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
 
-      input {
-        padding: 10px;
-        font-size: 18px;
-        font-family: "Courier New", monospace;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        text-align: center;
-        width: 120px;
-      }
+        input {
+            padding: 10px;
+            font-size: 18px;
+            font-family: 'Courier New', monospace;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-align: center;
+            width: 120px;
+        }
 
-      input::placeholder {
-        color: rgba(255, 255, 255, 0.6);
-      }
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
 
-      button {
-        padding: 12px 24px;
-        font-size: 16px;
-        background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-weight: bold;
-      }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
 
-      button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
 
-      button:disabled {
-        background: #666;
-        cursor: not-allowed;
-        transform: none;
-      }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
 
-      .tape-container {
-        margin: 30px 0;
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 10px;
-        padding: 20px;
-        overflow-x: auto;
-      }
+        .tape-container {
+            margin: 30px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+        }
 
-      .tape {
-        display: flex;
-        justify-content: center;
-        gap: 2px;
-        min-width: 100%;
-        padding: 10px 0;
-      }
+        .tape {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            min-width: 100%;
+            padding: 10px 0;
+        }
 
-      .cell {
-        width: 40px;
-        height: 40px;
-        border: 2px solid #555;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        font-weight: bold;
-        background: rgba(255, 255, 255, 0.1);
-        transition: all 0.3s ease;
-      }
+        .cell {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
 
-      .cell.head {
-        border-color: #ff6b6b;
-        background: rgba(255, 107, 107, 0.3);
-        transform: scale(1.1);
-        box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
-      }
+        .cell.head {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.3);
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
 
-      .cell.empty {
-        color: #888;
-      }
+        .cell.empty {
+            color: #888;
+        }
 
-      .status {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin: 20px 0;
-      }
+        .status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
 
-      .status-item {
-        background: rgba(255, 255, 255, 0.1);
-        padding: 15px;
-        border-radius: 8px;
-        text-align: center;
-      }
+        .status-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
 
-      .status-label {
-        font-size: 14px;
-        opacity: 0.8;
-        margin-bottom: 5px;
-      }
+        .status-label {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
 
-      .status-value {
-        font-size: 20px;
-        font-weight: bold;
-      }
+        .status-value {
+            font-size: 20px;
+            font-weight: bold;
+        }
 
-      .controls {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-        margin: 20px 0;
-        flex-wrap: wrap;
-      }
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
 
-      .speed-control {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-      .speed-control input[type="range"] {
-        width: 100px;
-      }
+        .speed-control input[type="range"] {
+            width: 100px;
+        }
 
-      .step-display {
-        background: rgba(0, 0, 0, 0.4);
-        padding: 20px;
-        border-radius: 10px;
-        margin: 20px 0;
-        font-size: 14px;
-        line-height: 1.6;
-        max-height: 300px;
-        overflow-y: auto;
-      }
+        .step-display {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 300px;
+            overflow-y: auto;
+        }
 
-      .step {
-        margin: 5px 0;
-        padding: 8px;
-        border-left: 3px solid #4ecdc4;
-        background: rgba(78, 205, 196, 0.1);
-        border-radius: 0 5px 5px 0;
-      }
+        .step {
+            margin: 5px 0;
+            padding: 8px;
+            border-left: 3px solid #4ecdc4;
+            background: rgba(78, 205, 196, 0.1);
+            border-radius: 0 5px 5px 0;
+        }
 
-      .current-step {
-        border-left-color: #ff6b6b;
-        background: rgba(255, 107, 107, 0.2);
-      }
+        .current-step {
+            border-left-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.2);
+        }
 
-      .algorithm-description {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 20px;
-        border-radius: 10px;
-        margin: 20px 0;
-        font-size: 14px;
-        line-height: 1.6;
-      }
+        .algorithm-description {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
 
-      .algorithm-description h3 {
-        margin-top: 0;
-        color: #4ecdc4;
-      }
+        .algorithm-description h3 {
+            margin-top: 0;
+            color: #4ecdc4;
+        }
 
-      .algorithm-description ol {
-        margin-left: 20px;
-      }
+        .algorithm-description ol {
+            margin-left: 20px;
+        }
 
-      .algorithm-description li {
-        margin: 8px 0;
-      }
+        .algorithm-description li {
+            margin: 8px 0;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <h1>🤖 Binary Addition Turing Machine</h1>
+        <h1>🤖 Binary Addition Turing Machine</h1>
+        
+        <div class="algorithm-description">
+            <h3>Algorithm Overview</h3>
+            <ol>
+                <li>Begin with carry = 0</li>
+                <li>Process each digit pair from least significant to most significant</li>
+                <li>Calculate sum = (digit1 + digit2 + carry) % 2</li>
+                <li>Calculate new carry = (digit1 + digit2 + carry) / 2</li>
+                <li>Write sum digit to result area</li>
+                <li>Continue until all digits are processed</li>
+                <li>Handle remaining carry if needed</li>
+                <li>Clean up and present final result</li>
+            </ol>
+        </div>
 
-      <div class="algorithm-description">
-        <h3>Algorithm Overview</h3>
-        <ol>
-          <li>Begin with carry = 0</li>
-          <li>
-            Process each digit pair from least significant to most significant
-          </li>
-          <li>Calculate sum = (digit1 + digit2 + carry) % 2</li>
-          <li>Calculate new carry = (digit1 + digit2 + carry) / 2</li>
-          <li>Write sum digit to result area</li>
-          <li>Continue until all digits are processed</li>
-          <li>Handle remaining carry if needed</li>
-          <li>Clean up and present final result</li>
-        </ol>
-      </div>
+        <div class="input-section">
+            <div class="input-group">
+                <label>First Binary Number:</label>
+                <input type="text" id="num1" placeholder="1011" value="1011">
+            </div>
+            <div class="input-group">
+                <label>Second Binary Number:</label>
+                <input type="text" id="num2" placeholder="101" value="101">
+            </div>
+            <button onclick="initializeMachine()">Initialize</button>
+        </div>
 
-      <div class="input-section">
-        <div class="input-group">
-          <label>First Binary Number:</label>
-          <input type="text" id="num1" placeholder="1011" value="1011" />
+        <div class="tape-container">
+            <div class="tape" id="tape"></div>
         </div>
-        <div class="input-group">
-          <label>Second Binary Number:</label>
-          <input type="text" id="num2" placeholder="101" value="101" />
-        </div>
-        <button onclick="initializeMachine()">Initialize</button>
-      </div>
 
-      <div class="tape-container">
-        <div class="tape" id="tape"></div>
-      </div>
+        <div class="status">
+            <div class="status-item">
+                <div class="status-label">Current State</div>
+                <div class="status-value" id="state">READY</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Head Position</div>
+                <div class="status-value" id="position">-</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Carry</div>
+                <div class="status-value" id="carry">0</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Step</div>
+                <div class="status-value" id="stepCount">0</div>
+            </div>
+        </div>
 
-      <div class="status">
-        <div class="status-item">
-          <div class="status-label">Current State</div>
-          <div class="status-value" id="state">READY</div>
+        <div class="controls">
+            <button onclick="stepForward()" id="stepBtn">Step Forward</button>
+            <button onclick="runAutomatic()" id="runBtn">Run Automatic</button>
+            <button onclick="resetMachine()" id="resetBtn">Reset</button>
+            <div class="speed-control">
+                <label>Speed:</label>
+                <input type="range" id="speed" min="100" max="2000" value="800">
+                <span id="speedValue">800ms</span>
+            </div>
         </div>
-        <div class="status-item">
-          <div class="status-label">Head Position</div>
-          <div class="status-value" id="position">-</div>
-        </div>
-        <div class="status-item">
-          <div class="status-label">Carry</div>
-          <div class="status-value" id="carry">0</div>
-        </div>
-        <div class="status-item">
-          <div class="status-label">Step</div>
-          <div class="status-value" id="stepCount">0</div>
-        </div>
-      </div>
 
-      <div class="controls">
-        <button onclick="stepForward()" id="stepBtn">Step Forward</button>
-        <button onclick="runAutomatic()" id="runBtn">Run Automatic</button>
-        <button onclick="resetMachine()" id="resetBtn">Reset</button>
-        <div class="speed-control">
-          <label>Speed:</label>
-          <input type="range" id="speed" min="100" max="2000" value="800" />
-          <span id="speedValue">800ms</span>
-        </div>
-      </div>
-
-      <div class="step-display" id="stepDisplay"></div>
+        <div class="step-display" id="stepDisplay"></div>
     </div>
 
     <script>
-      class TuringMachine {
-        constructor() {
-          this.tape = [];
-          this.head = 0;
-          this.state = "READY";
-          this.carry = 0;
-          this.stepCount = 0;
-          this.num1 = "";
-          this.num2 = "";
-          this.running = false;
-          this.steps = [];
-          this.digit1 = 0;
-          this.digit2 = 0;
-        }
-
-        initialize(num1, num2) {
-          // Validate binary input
-          if (!/^[01]+$/.test(num1) || !/^[01]+$/.test(num2)) {
-            alert("Please enter valid binary numbers (only 0s and 1s)");
-            return false;
-          }
-
-          this.num1 = num1;
-          this.num2 = num2;
-          this.tape = ["#"];
-
-          // Add first number
-          for (let digit of num1) {
-            this.tape.push(digit);
-          }
-
-          this.tape.push("+");
-
-          // Add second number
-          for (let digit of num2) {
-            this.tape.push(digit);
-          }
-
-          this.tape.push("#");
-
-          this.head = 0;
-          this.state = "START";
-          this.carry = 0;
-          this.stepCount = 0;
-          this.steps = [];
-          this.running = false;
-          this.logStep("Machine initialized with " + num1 + " + " + num2);
-          return true;
-        }
-
-        logStep(description) {
-          this.steps.push({
-            step: this.stepCount,
-            state: this.state,
-            head: this.head,
-            carry: this.carry,
-            tape: [...this.tape],
-            description: description,
-          });
-        }
-
-        getCurrentSymbol() {
-          return this.head >= 0 && this.head < this.tape.length
-            ? this.tape[this.head]
-            : "#";
-        }
-
-        writeSymbol(symbol) {
-          if (this.head >= 0 && this.head < this.tape.length) {
-            this.tape[this.head] = symbol;
-          }
-        }
-
-        moveRight() {
-          this.head++;
-          if (this.head >= this.tape.length) {
-            this.tape.push("#");
-          }
-        }
-
-        moveLeft() {
-          this.head--;
-          if (this.head < 0) {
-            this.tape.unshift("#");
-            this.head = 0;
-          }
-        }
-
-        executeStep() {
-          this.stepCount++;
-          let symbol = this.getCurrentSymbol();
-
-          switch (this.state) {
-            case "START":
-              // Move to find the + symbol first
-              if (symbol === "+") {
-                this.moveLeft(); // Move to rightmost digit of first number
-                this.state = "FIND_RIGHTMOST_DIGIT1";
-                this.logStep(
-                  "Found +, moving left to find rightmost digit of first number"
-                );
-              } else {
-                this.moveRight();
-                this.logStep("Moving right to find + symbol");
-              }
-              break;
-
-            case "FIND_RIGHTMOST_DIGIT1":
-              if (symbol === "0" || symbol === "1") {
-                this.digit1 = parseInt(symbol);
-                this.writeSymbol("X");
-                this.state = "MOVE_TO_SECOND_NUMBER";
-                this.logStep(
-                  `Found rightmost digit of first number: ${this.digit1}, marked as X`
-                );
-              } else if (symbol === "#") {
-                // No more digits in first number
-                this.digit1 = 0;
-                this.state = "MOVE_TO_SECOND_NUMBER";
-                this.logStep("First number exhausted, using digit1 = 0");
-              } else {
-                this.moveLeft();
-                this.logStep("Moving left to find rightmost unprocessed digit");
-              }
-              break;
-
-            case "MOVE_TO_SECOND_NUMBER":
-              // Move right until we pass the + symbol
-              if (symbol === "+") {
-                this.moveRight();
-                this.state = "FIND_RIGHTMOST_DIGIT2";
-                this.logStep(
-                  "Passed +, now looking for rightmost digit of second number"
-                );
-              } else {
-                this.moveRight();
-                this.logStep("Moving right to find + symbol");
-              }
-              break;
-
-            case "FIND_RIGHTMOST_DIGIT2":
-              if (symbol === "#" || symbol === "=") {
-                // We've gone too far, move back to find the rightmost digit
-                this.moveLeft();
-                this.state = "SCAN_FOR_DIGIT2";
-                this.logStep(
-                  "Reached end, moving back to find rightmost digit of second number"
-                );
-              } else {
-                this.moveRight();
-                this.logStep("Moving right to find end of second number");
-              }
-              break;
-
-            case "SCAN_FOR_DIGIT2":
-              if (symbol === "0" || symbol === "1") {
-                this.digit2 = parseInt(symbol);
-                this.writeSymbol("X");
-                this.state = "MOVE_TO_RESULT_AREA";
-                this.logStep(
-                  `Found rightmost digit of second number: ${this.digit2}, marked as X`
-                );
-              } else if (symbol === "+") {
-                // No more digits in second number
-                this.digit2 = 0;
-                this.state = "MOVE_TO_RESULT_AREA";
-                this.logStep("Second number exhausted, using digit2 = 0");
-              } else {
-                this.moveLeft();
-                this.logStep("Moving left to find rightmost unprocessed digit");
-              }
-              break;
-
-            case "MOVE_TO_RESULT_AREA":
-              // Move right to find or create the result area
-              if (symbol === "=") {
-                this.moveRight();
-                this.state = "ADD_RESULT_DIGIT";
-                this.logStep("Found =, moving to result area");
-              } else if (symbol === "#") {
-                // Need to create the = symbol
-                this.writeSymbol("=");
-                this.moveRight();
-                if (this.head >= this.tape.length) {
-                  this.tape.push("#");
-                }
-                this.state = "ADD_RESULT_DIGIT";
-                this.logStep("Created = symbol, moving to result area");
-              } else {
-                this.moveRight();
-                this.logStep("Moving right to find result area");
-              }
-              break;
-
-            case "ADD_RESULT_DIGIT":
-              let sum = this.digit1 + this.digit2 + this.carry;
-              let resultDigit = sum % 2;
-              let oldCarry = this.carry;
-              this.carry = Math.floor(sum / 2);
-
-              // If we're at a # or empty space, we can write directly
-              if (symbol === "#" || this.head >= this.tape.length) {
-                // Insert the result digit at the current position
-                if (this.head >= this.tape.length) {
-                  this.tape.push(resultDigit.toString());
-                  this.tape.push("#");
-                } else {
-                  this.tape.splice(this.head, 0, resultDigit.toString());
-                }
-                this.logStep(
-                  `Added result digit ${resultDigit} (${this.digit1} + ${this.digit2} + ${oldCarry} = ${sum}), carry = ${this.carry}`
-                );
-              } else {
-                // Need to shift existing digits and insert
-                this.tape.splice(this.head, 0, resultDigit.toString());
-                this.logStep(
-                  `Inserted result digit ${resultDigit} (${this.digit1} + ${this.digit2} + ${oldCarry} = ${sum}), carry = ${this.carry}`
-                );
-              }
-
-              this.state = "RETURN_TO_START";
-              break;
-
-            case "RETURN_TO_START":
-              // Move back to the beginning to process next digits
-              if (symbol === "#" && this.head === 0) {
-                this.moveRight();
-                this.state = "CHECK_MORE_DIGITS";
-                this.logStep("Returned to start, checking for more digits");
-              } else {
-                this.moveLeft();
-                this.logStep("Moving left to return to start");
-              }
-              break;
-
-            case "CHECK_MORE_DIGITS":
-              // Scan through the tape to see if there are unprocessed digits
-              if (symbol === "0" || symbol === "1") {
-                // Found unprocessed digit, continue processing
-                this.state = "MOVE_TO_PLUS";
-                this.logStep(
-                  "Found more unprocessed digits, continuing addition"
-                );
-              } else if (symbol === "+") {
-                this.state = "MOVE_TO_PLUS";
-                this.logStep("Checking second number for unprocessed digits");
-              } else if (symbol === "=" || symbol === "#") {
-                // No more digits found
-                if (this.carry > 0) {
-                  this.state = "HANDLE_FINAL_CARRY";
-                  this.logStep("No more digits, need to handle final carry");
-                } else {
-                  this.state = "CLEANUP";
-                  this.logStep("All digits processed, starting cleanup");
-                }
-              } else {
-                this.moveRight();
-                this.logStep("Scanning for unprocessed digits");
-              }
-              break;
-
-            case "MOVE_TO_PLUS":
-              // Move to the + symbol to restart the process
-              if (symbol === "+") {
-                this.moveLeft();
-                this.state = "FIND_RIGHTMOST_DIGIT1";
-                this.logStep("Found +, restarting digit processing");
-              } else {
-                this.moveRight();
-                this.logStep("Moving right to find + symbol");
-              }
-              break;
-
-            case "HANDLE_FINAL_CARRY":
-              // Move to the result area to add final carry
-              if (symbol === "=") {
-                this.moveRight();
-                // Insert carry at the beginning of result
-                this.tape.splice(this.head, 0, this.carry.toString());
-                this.logStep(`Added final carry digit: ${this.carry}`);
+        class TuringMachine {
+            constructor() {
+                this.tape = [];
+                this.head = 0;
+                this.state = 'READY';
                 this.carry = 0;
-                this.state = "CLEANUP";
-              } else {
-                this.moveRight();
-                this.logStep("Moving to result area to add final carry");
-              }
-              break;
+                this.stepCount = 0;
+                this.num1 = '';
+                this.num2 = '';
+                this.running = false;
+                this.steps = [];
+                this.digit1 = 0;
+                this.digit2 = 0;
+                this.processedDigitThisCycle = false; // Track if we processed any digits
+                this.tempDigit = ''; // For holding digits during reversal
+                this.cleanupStartStep = 0; // Track when cleanup started
+            }
 
-            case "CLEANUP":
-              // Move to start of result area
-              if (symbol === "=") {
-                this.moveRight();
-                this.state = "EXTRACT_RESULT";
-                this.logStep("Starting result extraction");
-              } else {
-                this.moveRight();
-                this.logStep("Moving to result area for cleanup");
-              }
-              break;
+            initialize(num1, num2) {
+                // Validate binary input
+                if (!/^[01]+$/.test(num1) || !/^[01]+$/.test(num2)) {
+                    alert('Please enter valid binary numbers (only 0s and 1s)');
+                    return false;
+                }
 
-            case "EXTRACT_RESULT":
-              // Extract and reverse the result
-              let result = [];
-              let pos = this.head;
+                this.num1 = num1;
+                this.num2 = num2;
+                this.tape = ['#'];
+                
+                // Add first number
+                for (let digit of num1) {
+                    this.tape.push(digit);
+                }
+                
+                this.tape.push('+');
+                
+                // Add second number
+                for (let digit of num2) {
+                    this.tape.push(digit);
+                }
+                
+                this.tape.push('#');
+                
+                this.head = 0;
+                this.state = 'START';
+                this.carry = 0;
+                this.stepCount = 0;
+                this.steps = [];
+                this.running = false;
+                this.logStep('Machine initialized with ' + num1 + ' + ' + num2);
+                return true;
+            }
 
-              while (pos < this.tape.length && this.tape[pos] !== "#") {
-                result.push(this.tape[pos]);
-                pos++;
-              }
+            logStep(description) {
+                this.steps.push({
+                    step: this.stepCount,
+                    state: this.state,
+                    head: this.head,
+                    carry: this.carry,
+                    tape: [...this.tape],
+                    description: description
+                });
+            }
 
-              // Reverse result (since we built it right-to-left)
-              result.reverse();
+            getCurrentSymbol() {
+                return this.head >= 0 && this.head < this.tape.length ? this.tape[this.head] : '#';
+            }
 
-              // Clear tape and write final result
-              this.tape = ["#"];
-              for (let digit of result) {
-                this.tape.push(digit);
-              }
-              this.tape.push("#");
-              this.head = 1;
-              this.state = "COMPLETE";
-              this.logStep(
-                `Final result: ${result.join("")} (${this.num1} + ${
-                  this.num2
-                } = ${result.join("")})`
-              );
-              break;
+            writeSymbol(symbol) {
+                if (this.head >= 0 && this.head < this.tape.length) {
+                    this.tape[this.head] = symbol;
+                }
+            }
 
-            case "COMPLETE":
-              this.logStep("Binary addition complete!");
-              return false; // Stop execution
-          }
+            moveRight() {
+                this.head++;
+                if (this.head >= this.tape.length) {
+                    this.tape.push('#');
+                }
+            }
 
-          return true; // Continue execution
+            moveLeft() {
+                this.head--;
+                if (this.head < 0) {
+                    this.tape.unshift('#');
+                    this.head = 0;
+                }
+            }
+
+            executeStep() {
+                this.stepCount++;
+                let symbol = this.getCurrentSymbol();
+                
+                switch (this.state) {
+                    case 'START':
+                        // Move to find the + symbol first
+                        if (symbol === '+') {
+                            this.moveLeft(); // Move to rightmost digit of first number
+                            this.state = 'FIND_RIGHTMOST_DIGIT1';
+                            this.logStep('Found +, moving left to find rightmost digit of first number');
+                        } else {
+                            this.moveRight();
+                            this.logStep('Moving right to find + symbol');
+                        }
+                        break;
+
+                    case 'FIND_RIGHTMOST_DIGIT1':
+                        if (symbol === '0' || symbol === '1') {
+                            this.digit1 = parseInt(symbol);
+                            this.writeSymbol('X');
+                            this.processedDigitThisCycle = true; // Mark that we processed a digit
+                            this.state = 'MOVE_TO_SECOND_NUMBER';
+                            this.logStep(`Found rightmost digit of first number: ${this.digit1}, marked as X`);
+                        } else if (symbol === '#') {
+                            // No more digits in first number, use 0 and continue to second number
+                            this.digit1 = 0;
+                            this.state = 'MOVE_TO_SECOND_NUMBER';
+                            this.logStep('First number exhausted, using digit1 = 0, moving to second number');
+                        } else {
+                            this.moveLeft();
+                            this.logStep('Moving left to find rightmost unprocessed digit');
+                        }
+                        break;
+
+                    case 'MOVE_TO_SECOND_NUMBER':
+                        // Move right until we pass the + symbol
+                        if (symbol === '+') {
+                            this.moveRight();
+                            this.state = 'FIND_RIGHTMOST_DIGIT2';
+                            this.logStep('Passed +, now looking for rightmost digit of second number');
+                        } else {
+                            this.moveRight();
+                            this.logStep('Moving right to find + symbol');
+                        }
+                        break;
+
+                    case 'FIND_RIGHTMOST_DIGIT2':
+                        if (symbol === '#' || symbol === '=') {
+                            // We've gone too far, move back to find the rightmost digit
+                            this.moveLeft();
+                            this.state = 'SCAN_FOR_DIGIT2';
+                            this.logStep('Reached end, moving back to find rightmost digit of second number');
+                        } else {
+                            this.moveRight();
+                            this.logStep('Moving right to find end of second number');
+                        }
+                        break;
+
+                    case 'SCAN_FOR_DIGIT2':
+                        if (symbol === '0' || symbol === '1') {
+                            this.digit2 = parseInt(symbol);
+                            this.writeSymbol('X');
+                            this.processedDigitThisCycle = true; // Mark that we processed a digit
+                            this.state = 'MOVE_TO_RESULT_AREA';
+                            this.logStep(`Found rightmost digit of second number: ${this.digit2}, marked as X`);
+                        } else if (symbol === '+') {
+                            // No more digits in second number, but we might still have carry or digit1
+                            this.digit2 = 0;
+                            this.state = 'MOVE_TO_RESULT_AREA';
+                            this.logStep('Second number exhausted, using digit2 = 0, continuing with addition');
+                        } else {
+                            this.moveLeft();
+                            this.logStep('Moving left to find rightmost unprocessed digit');
+                        }
+                        break;
+
+                    case 'MOVE_TO_RESULT_AREA':
+                        // Move right to find or create the result area
+                        if (symbol === '=') {
+                            this.moveRight();
+                            this.state = 'ADD_RESULT_DIGIT';
+                            this.logStep('Found =, moving to result area');
+                        } else if (symbol === '#') {
+                            // Need to create the = symbol
+                            this.writeSymbol('=');
+                            this.moveRight();
+                            if (this.head >= this.tape.length) {
+                                this.tape.push('#');
+                            }
+                            this.state = 'ADD_RESULT_DIGIT';
+                            this.logStep('Created = symbol, moving to result area');
+                        } else {
+                            this.moveRight();
+                            this.logStep('Moving right to find result area');
+                        }
+                        break;
+
+                    case 'ADD_RESULT_DIGIT':
+                        let sum = this.digit1 + this.digit2 + this.carry;
+                        let resultDigit = sum % 2;
+                        let oldCarry = this.carry;
+                        this.carry = Math.floor(sum / 2);
+                        
+                        // Find the rightmost position in the result area to add the digit
+                        if (symbol === '#') {
+                            // We're at the end, insert the digit here
+                            this.tape.splice(this.head, 0, resultDigit.toString());
+                            this.logStep(`Added result digit ${resultDigit} at rightmost position (${this.digit1} + ${this.digit2} + ${oldCarry} = ${sum}), carry = ${this.carry}`);
+                        } else {
+                            // There are already digits, move to the end and add there
+                            while (this.head < this.tape.length && this.getCurrentSymbol() !== '#') {
+                                this.moveRight();
+                                this.logStep('Moving right to find end of result area');
+                            }
+                            // Insert the digit at the rightmost position
+                            this.tape.splice(this.head, 0, resultDigit.toString());
+                            this.logStep(`Added result digit ${resultDigit} at end of result (${this.digit1} + ${this.digit2} + ${oldCarry} = ${sum}), carry = ${this.carry}`);
+                        }
+                        
+                        this.state = 'RETURN_TO_START';
+                        break;
+
+                    case 'RETURN_TO_START':
+                        // Move back to the beginning to process next digits
+                        if (symbol === '#' && this.head === 0) {
+                            this.moveRight();
+                            this.state = 'CHECK_MORE_DIGITS';
+                            this.logStep('Returned to start, checking for more digits');
+                        } else {
+                            this.moveLeft();
+                            this.logStep('Moving left to return to start');
+                        }
+                        break;
+
+                    case 'CHECK_MORE_DIGITS':
+                        // Check if we processed any digits in this cycle
+                        if (!this.processedDigitThisCycle && this.carry === 0) {
+                            // No digits were processed and no carry, check if there are actually more digits
+                            let hasUnprocessedDigits = false;
+                            
+                            // Comprehensive scan for any unprocessed digits anywhere before =
+                            for (let i = 1; i < this.tape.length; i++) {
+                                if (this.tape[i] === '=') {
+                                    break; // Stop at result area
+                                }
+                                if (this.tape[i] === '0' || this.tape[i] === '1') {
+                                    hasUnprocessedDigits = true;
+                                    this.logStep(`Found unprocessed digit '${this.tape[i]}' at position ${i}`);
+                                    break;
+                                }
+                            }
+                            
+                            if (hasUnprocessedDigits) {
+                                // Force continue processing - reset flag and restart
+                                this.processedDigitThisCycle = false;
+                                this.head = 0;
+                                this.state = 'MOVE_TO_PLUS';
+                                this.logStep('Found more unprocessed digits, forcing continuation of addition');
+                                return true;
+                            } else {
+                                this.state = 'CLEANUP';
+                                this.logStep('Truly no more digits, starting cleanup');
+                                return true;
+                            }
+                        } else if (!this.processedDigitThisCycle && this.carry > 0) {
+                            // No digits but we have carry to handle
+                            this.state = 'HANDLE_FINAL_CARRY';
+                            this.logStep('No digits processed but carry remains, handling final carry');
+                            return true;
+                        }
+                        
+                        // Reset the flag for next cycle
+                        this.processedDigitThisCycle = false;
+                        
+                        // Scan through the tape to see if there are unprocessed digits (0 or 1)
+                        if ((symbol === '0' || symbol === '1') && this.head < this.tape.length) {
+                            // Found unprocessed digit before the = sign
+                            let beforeEquals = true;
+                            for (let i = this.head; i < this.tape.length; i++) {
+                                if (this.tape[i] === '=') {
+                                    beforeEquals = true;
+                                    break;
+                                }
+                            }
+                            
+                            if (beforeEquals) {
+                                // This is an unprocessed digit, continue processing
+                                this.state = 'MOVE_TO_PLUS';
+                                this.logStep('Found more unprocessed digits, continuing addition');
+                                return true;
+                            }
+                        }
+                        
+                        if (symbol === '=' || symbol === '#') {
+                            // Reached the end of input area, check if we found any unprocessed digits
+                            let hasUnprocessedDigits = false;
+                            
+                            // Scan the entire input area (before =) for any remaining 0s or 1s
+                            for (let i = 1; i < this.tape.length; i++) {
+                                if (this.tape[i] === '=') {
+                                    break; // Stop at result area
+                                }
+                                if (this.tape[i] === '0' || this.tape[i] === '1') {
+                                    hasUnprocessedDigits = true;
+                                    break;
+                                }
+                            }
+                            
+                            if (hasUnprocessedDigits) {
+                                // Go back to start to process remaining digits
+                                this.head = 0;
+                                this.state = 'MOVE_TO_PLUS';
+                                this.logStep('Found unprocessed digits, restarting from beginning');
+                            } else if (this.carry > 0) {
+                                this.state = 'HANDLE_FINAL_CARRY';
+                                this.logStep('No more digits, need to handle final carry');
+                            } else {
+                                this.state = 'CLEANUP';
+                                this.logStep('All digits processed, starting cleanup');
+                            }
+                        } else {
+                            this.moveRight();
+                            this.logStep('Scanning for unprocessed digits');
+                        }
+                        break;
+
+                    case 'MOVE_TO_PLUS':
+                        // Move to the + symbol to restart the process
+                        if (symbol === '+') {
+                            this.moveLeft();
+                            this.state = 'FIND_RIGHTMOST_DIGIT1';
+                            this.logStep('Found +, restarting digit processing');
+                        } else {
+                            this.moveRight();
+                            this.logStep('Moving right to find + symbol');
+                        }
+                        break;
+
+                    case 'HANDLE_FINAL_CARRY':
+                        if (this.carry > 0) {
+                            // Move to the rightmost position of result area to add final carry
+                            if (symbol === '=') {
+                                this.moveRight();
+                                this.logStep('Moving to result area to add final carry');
+                            } else if (symbol === '#') {
+                                // We're at the end, add the carry here
+                                this.tape.splice(this.head, 0, this.carry.toString());
+                                this.logStep(`Added final carry digit ${this.carry} at end of result`);
+                                this.carry = 0;
+                                this.state = 'CLEANUP';
+                            } else {
+                                // Move to the end of the result area
+                                this.moveRight();
+                                this.logStep('Moving to end of result area for final carry');
+                            }
+                        } else {
+                            this.state = 'CLEANUP';
+                        }
+                        break;
+
+                    case 'CLEANUP':
+                        // Execute cleanup logic immediately without head movement
+                        this.logStep('Starting cleanup - finding result area');
+                        
+                        // Find = position directly without moving head
+                        let equalsPos = -1;
+                        for (let i = 0; i < this.tape.length; i++) {
+                            if (this.tape[i] === '=') {
+                                equalsPos = i;
+                                break;
+                            }
+                        }
+                        
+                        if (equalsPos !== -1) {
+                            // Check if there are any digits to reverse
+                            let resultDigits = [];
+                            for (let i = equalsPos + 1; i < this.tape.length; i++) {
+                                if (this.tape[i] !== '#' && this.tape[i] !== '' && /[01]/.test(this.tape[i])) {
+                                    resultDigits.push(this.tape[i]);
+                                }
+                            }
+                            
+                            if (resultDigits.length > 0) {
+                                this.head = equalsPos + 1; // Position at first result digit
+                                this.state = 'START_REVERSAL';
+                                this.logStep(`Found result to reverse: ${resultDigits.join('')} - starting reversal process`);
+                            } else {
+                                // No result found, something went wrong
+                                this.state = 'COMPLETE';
+                                this.logStep('No result digits found - completing');
+                            }
+                        } else {
+                            // No equals sign found, something went wrong
+                            this.state = 'COMPLETE';
+                            this.logStep('No result area found - completing');
+                        }
+                        break;
+
+                    case 'START_REVERSAL':
+                        // We're now at the beginning of the result area, find the end
+                        this.logStep(`Current result to reverse: ${this.tape.slice(this.head, this.tape.findIndex(c => c === '#', this.head)).join('')}`);
+                        
+                        if (symbol !== '#' && symbol !== '') {
+                            this.moveRight();
+                            this.logStep('Moving right to find end of result for reversal');
+                        } else {
+                            // Found the end, now go back to the rightmost digit
+                            this.moveLeft();
+                            this.state = 'MARK_RIGHTMOST';
+                            this.logStep('Found end of result, moving back to rightmost digit to start reversal');
+                        }
+                        break;
+
+                    case 'MARK_RIGHTMOST':
+                        // Mark the rightmost digit and prepare to move it
+                        if (symbol !== '=' && symbol !== '#') {
+                            this.tempDigit = symbol;
+                            this.writeSymbol('R'); // Mark as 'R' for rightmost
+                            this.state = 'FIND_LEFTMOST';
+                            this.logStep(`Marked rightmost digit '${this.tempDigit}' with R, now finding leftmost position`);
+                        } else {
+                            this.moveLeft();
+                            this.logStep('Moving left to find rightmost digit');
+                        }
+                        break;
+
+                    case 'FIND_LEFTMOST':
+                        // Move to the leftmost position in the result area
+                        if (symbol === '=') {
+                            this.moveRight();
+                            this.state = 'INSERT_AT_LEFT';
+                            this.logStep('Found leftmost position, inserting digit here');
+                        } else {
+                            this.moveLeft();
+                            this.logStep('Moving left to find leftmost position');
+                        }
+                        break;
+
+                    case 'INSERT_AT_LEFT':
+                        // Insert the marked digit at the leftmost position
+                        this.tape.splice(this.head, 0, this.tempDigit);
+                        this.logStep(`Inserted '${this.tempDigit}' at leftmost position`);
+                        this.state = 'FIND_MARKED_DIGIT';
+                        break;
+
+                    case 'FIND_MARKED_DIGIT':
+                        // Find the marked digit (R) to remove it
+                        if (symbol === 'R') {
+                            this.writeSymbol('#'); // Remove the marked digit
+                            this.state = 'CHECK_REVERSAL_COMPLETE';
+                            this.logStep(`Removed marked digit, checking if reversal is complete`);
+                        } else {
+                            this.moveRight();
+                            this.logStep('Looking for marked digit to remove');
+                        }
+                        break;
+
+                    case 'CHECK_REVERSAL_COMPLETE':
+                        // Check if there are more digits to reverse
+                        let hasMoreDigits = false;
+                        let currentPos = this.head;
+                        
+                        // Scan for remaining digits (not #, not =)
+                        while (currentPos < this.tape.length) {
+                            if (this.tape[currentPos] !== '#' && this.tape[currentPos] !== '=' && 
+                                this.tape[currentPos] !== '' && /[01]/.test(this.tape[currentPos])) {
+                                hasMoreDigits = true;
+                                break;
+                            }
+                            currentPos++;
+                        }
+                        
+                        if (hasMoreDigits) {
+                            // More digits to reverse, continue
+                            this.state = 'FIND_NEXT_RIGHTMOST';
+                            this.logStep('More digits to reverse, continuing process');
+                        } else {
+                            // Reversal complete, clean up
+                            this.state = 'CLEANUP_REVERSAL';
+                            this.logStep('Reversal complete, cleaning up');
+                        }
+                        break;
+
+                    case 'FIND_NEXT_RIGHTMOST':
+                        // Find the next rightmost digit to reverse
+                        if (symbol === '#') {
+                            this.moveLeft();
+                            this.state = 'MARK_RIGHTMOST';
+                            this.logStep('Found end, moving back to find next rightmost digit');
+                        } else {
+                            this.moveRight();
+                            this.logStep('Moving right to find next rightmost digit');
+                        }
+                        break;
+
+                    case 'CLEANUP_REVERSAL':
+                        // Remove all # symbols from the result area and present final result
+                        let resultStart = -1;
+                        for (let i = 0; i < this.tape.length; i++) {
+                            if (this.tape[i] === '=') {
+                                resultStart = i + 1;
+                                break;
+                            }
+                        }
+                        
+                        if (resultStart !== -1) {
+                            // Extract clean result
+                            let result = [];
+                            for (let i = resultStart; i < this.tape.length; i++) {
+                                if (this.tape[i] !== '#' && this.tape[i] !== '' && /[01]/.test(this.tape[i])) {
+                                    result.push(this.tape[i]);
+                                }
+                            }
+                            
+                            // Clear tape and write final result
+                            this.tape = ['#'];
+                            for (let digit of result) {
+                                this.tape.push(digit);
+                            }
+                            this.tape.push('#');
+                            this.head = 1;
+                            this.state = 'COMPLETE';
+                            this.logStep(`Reversal complete! Final result: ${result.join('')} (${this.num1} + ${this.num2} = ${result.join('')})`);
+                        }
+                        break;
+
+                    case 'COMPLETE':
+                        this.logStep('Binary addition complete!');
+                        return false; // Stop execution
+                }
+                
+                return true; // Continue execution
+            }
         }
-      }
 
-      const machine = new TuringMachine();
+        const machine = new TuringMachine();
 
-      function updateDisplay() {
-        const tapeElement = document.getElementById("tape");
-        tapeElement.innerHTML = "";
-
-        for (let i = 0; i < machine.tape.length; i++) {
-          const cell = document.createElement("div");
-          cell.className = "cell";
-          cell.textContent = machine.tape[i] === "#" ? "∅" : machine.tape[i];
-
-          if (machine.tape[i] === "#") {
-            cell.classList.add("empty");
-          }
-
-          if (i === machine.head) {
-            cell.classList.add("head");
-          }
-
-          tapeElement.appendChild(cell);
+        function updateDisplay() {
+            const tapeElement = document.getElementById('tape');
+            tapeElement.innerHTML = '';
+            
+            for (let i = 0; i < machine.tape.length; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.textContent = machine.tape[i] === '#' ? '∅' : machine.tape[i];
+                
+                if (machine.tape[i] === '#') {
+                    cell.classList.add('empty');
+                }
+                
+                if (i === machine.head) {
+                    cell.classList.add('head');
+                }
+                
+                tapeElement.appendChild(cell);
+            }
+            
+            document.getElementById('state').textContent = machine.state;
+            document.getElementById('position').textContent = machine.head;
+            document.getElementById('carry').textContent = machine.carry;
+            document.getElementById('stepCount').textContent = machine.stepCount;
+            
+            // Update step display
+            const stepDisplay = document.getElementById('stepDisplay');
+            stepDisplay.innerHTML = '';
+            
+            for (let i = Math.max(0, machine.steps.length - 10); i < machine.steps.length; i++) {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'step';
+                if (i === machine.steps.length - 1) {
+                    stepDiv.classList.add('current-step');
+                }
+                stepDiv.textContent = `Step ${machine.steps[i].step}: ${machine.steps[i].description}`;
+                stepDisplay.appendChild(stepDiv);
+            }
+            
+            stepDisplay.scrollTop = stepDisplay.scrollHeight;
         }
 
-        document.getElementById("state").textContent = machine.state;
-        document.getElementById("position").textContent = machine.head;
-        document.getElementById("carry").textContent = machine.carry;
-        document.getElementById("stepCount").textContent = machine.stepCount;
-
-        // Update step display
-        const stepDisplay = document.getElementById("stepDisplay");
-        stepDisplay.innerHTML = "";
-
-        for (
-          let i = Math.max(0, machine.steps.length - 10);
-          i < machine.steps.length;
-          i++
-        ) {
-          const stepDiv = document.createElement("div");
-          stepDiv.className = "step";
-          if (i === machine.steps.length - 1) {
-            stepDiv.classList.add("current-step");
-          }
-          stepDiv.textContent = `Step ${machine.steps[i].step}: ${machine.steps[i].description}`;
-          stepDisplay.appendChild(stepDiv);
+        function initializeMachine() {
+            const num1 = document.getElementById('num1').value.trim();
+            const num2 = document.getElementById('num2').value.trim();
+            
+            if (machine.initialize(num1, num2)) {
+                updateDisplay();
+                document.getElementById('stepBtn').disabled = false;
+                document.getElementById('runBtn').disabled = false;
+            }
         }
 
-        stepDisplay.scrollTop = stepDisplay.scrollHeight;
-      }
-
-      function initializeMachine() {
-        const num1 = document.getElementById("num1").value.trim();
-        const num2 = document.getElementById("num2").value.trim();
-
-        if (machine.initialize(num1, num2)) {
-          updateDisplay();
-          document.getElementById("stepBtn").disabled = false;
-          document.getElementById("runBtn").disabled = false;
+        function stepForward() {
+            if (machine.state !== 'COMPLETE') {
+                machine.executeStep();
+                updateDisplay();
+                
+                if (machine.state === 'COMPLETE') {
+                    document.getElementById('stepBtn').disabled = true;
+                    document.getElementById('runBtn').disabled = true;
+                }
+            }
         }
-      }
 
-      function stepForward() {
-        if (machine.state !== "COMPLETE") {
-          machine.executeStep();
-          updateDisplay();
-
-          if (machine.state === "COMPLETE") {
-            document.getElementById("stepBtn").disabled = true;
-            document.getElementById("runBtn").disabled = true;
-          }
+        function runAutomatic() {
+            if (machine.running) return;
+            
+            machine.running = true;
+            document.getElementById('runBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+            
+            const speed = parseInt(document.getElementById('speed').value);
+            
+            const runStep = () => {
+                if (machine.state !== 'COMPLETE' && machine.running) {
+                    machine.executeStep();
+                    updateDisplay();
+                    setTimeout(runStep, speed);
+                } else {
+                    machine.running = false;
+                    document.getElementById('runBtn').disabled = machine.state === 'COMPLETE';
+                    document.getElementById('stepBtn').disabled = machine.state === 'COMPLETE';
+                }
+            };
+            
+            runStep();
         }
-      }
 
-      function runAutomatic() {
-        if (machine.running) return;
-
-        machine.running = true;
-        document.getElementById("runBtn").disabled = true;
-        document.getElementById("stepBtn").disabled = true;
-
-        const speed = parseInt(document.getElementById("speed").value);
-
-        const runStep = () => {
-          if (machine.state !== "COMPLETE" && machine.running) {
-            machine.executeStep();
-            updateDisplay();
-            setTimeout(runStep, speed);
-          } else {
+        function resetMachine() {
             machine.running = false;
-            document.getElementById("runBtn").disabled =
-              machine.state === "COMPLETE";
-            document.getElementById("stepBtn").disabled =
-              machine.state === "COMPLETE";
-          }
-        };
-
-        runStep();
-      }
-
-      function resetMachine() {
-        machine.running = false;
-        machine.tape = [];
-        machine.head = 0;
-        machine.state = "READY";
-        machine.carry = 0;
-        machine.stepCount = 0;
-        machine.steps = [];
-
-        document.getElementById("stepBtn").disabled = true;
-        document.getElementById("runBtn").disabled = true;
-        document.getElementById("stepDisplay").innerHTML = "";
-
-        const tapeElement = document.getElementById("tape");
-        tapeElement.innerHTML =
-          '<div class="cell empty">Ready to initialize...</div>';
-
-        document.getElementById("state").textContent = "READY";
-        document.getElementById("position").textContent = "-";
-        document.getElementById("carry").textContent = "0";
-        document.getElementById("stepCount").textContent = "0";
-      }
-
-      // Speed control
-      document.getElementById("speed").addEventListener("input", function () {
-        document.getElementById("speedValue").textContent = this.value + "ms";
-      });
-
-      // Initialize with default values on load
-      window.addEventListener("load", function () {
-        resetMachine();
-      });
-
-      // Allow Enter key to initialize
-      document.addEventListener("keypress", function (e) {
-        if (e.key === "Enter" && !machine.running) {
-          initializeMachine();
+            machine.tape = [];
+            machine.head = 0;
+            machine.state = 'READY';
+            machine.carry = 0;
+            machine.stepCount = 0;
+            machine.steps = [];
+            
+            document.getElementById('stepBtn').disabled = true;
+            document.getElementById('runBtn').disabled = true;
+            document.getElementById('stepDisplay').innerHTML = '';
+            
+            const tapeElement = document.getElementById('tape');
+            tapeElement.innerHTML = '<div class="cell empty">Ready to initialize...</div>';
+            
+            document.getElementById('state').textContent = 'READY';
+            document.getElementById('position').textContent = '-';
+            document.getElementById('carry').textContent = '0';
+            document.getElementById('stepCount').textContent = '0';
         }
-      });
+
+        // Speed control
+        document.getElementById('speed').addEventListener('input', function() {
+            document.getElementById('speedValue').textContent = this.value + 'ms';
+        });
+
+        // Initialize with default values on load
+        window.addEventListener('load', function() {
+            resetMachine();
+        });
+
+        // Allow Enter key to initialize
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !machine.running) {
+                initializeMachine();
+            }
+        });
     </script>
-  </body>
+</body>
 </html>
