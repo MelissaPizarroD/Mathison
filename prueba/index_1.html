@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Máquina de Turing</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Calculadora con Máquina de Turing</h1>
+        
+        <div class="operation-selector">
+            <h3>Seleccionar Operación</h3>
+            <div class="operation-buttons">
+                <button class="operation-btn active" data-operation="sum">➕ Suma</button>
+                <button class="operation-btn" data-operation="subtract">➖ Resta</button>
+                <button class="operation-btn" data-operation="multiply">✖️ Multiplicación</button>
+                <button class="operation-btn" data-operation="divide">➗ División</button>
+            </div>
+        </div>
+
+        <div class="algorithm-description" id="algorithmDescription">
+            <h3>Descripción del Algoritmo - Suma Binaria</h3>
+            <ol id="algorithmSteps">
+                <li>Comenzar con acarreo = 0</li>
+                <li>Procesar cada par de dígitos del menos significativo al más significativo</li>
+                <li>Calcular suma = (dígito1 + dígito2 + acarreo) % 2</li>
+                <li>Calcular nuevo acarreo = (dígito1 + dígito2 + acarreo) / 2</li>
+                <li>Escribir el dígito suma en el área de resultado</li>
+                <li>Continuar hasta que todos los dígitos sean procesados</li>
+                <li>Manejar el acarreo restante si es necesario</li>
+                <li>Limpiar y presentar el resultado final</li>
+            </ol>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label>Primer Número Binario:</label>
+                <input type="text" id="num1" placeholder="1011" value="1011">
+            </div>
+            <div class="input-group">
+                <label>Segundo Número Binario:</label>
+                <input type="text" id="num2" placeholder="101" value="101">
+            </div>
+            <button onclick="initializeMachine()">Inicializar</button>
+        </div>
+
+        <div class="tape-container">
+            <div class="tape" id="tape"></div>
+        </div>
+
+        <div class="status">
+            <div class="status-item">
+                <div class="status-label">Estado Actual</div>
+                <div class="status-value" id="state">LISTO</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Posición del Cabezal</div>
+                <div class="status-value" id="position">-</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Acarreo</div>
+                <div class="status-value" id="carry">0</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Paso</div>
+                <div class="status-value" id="stepCount">0</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button onclick="stepForward()" id="stepBtn">Paso Adelante</button>
+            <button onclick="runAutomatic()" id="runBtn">Ejecutar Automático</button>
+            <button onclick="resetMachine()" id="resetBtn">Reiniciar</button>
+            <div class="speed-control">
+                <label>Velocidad:</label>
+                <input type="range" id="speed" min="100" max="2000" value="800">
+                <span id="speedValue">800ms</span>
+            </div>
+        </div>
+
+        <div class="step-display" id="stepDisplay"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/base-machine.js"></script>
+    <script src="js/operations/sum.js"></script>
+    <script src="js/operations/subtract.js"></script>
+    <script src="js/operations/multiply.js"></script>
+    <script src="js/operations/divide.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
