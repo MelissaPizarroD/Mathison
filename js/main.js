@@ -136,9 +136,7 @@ function createMachine(operation) {
         case 'subtract':
             return new SubtractTuringMachine();
         case 'multiply':
-            // return new MultiplyTuringMachine();
-            alert('Operación de multiplicación en desarrollo');
-            return null;
+            return new MultiplyTuringMachine();
         case 'divide':
             // return new DivideTuringMachine();
             alert('Operación de división en desarrollo');
