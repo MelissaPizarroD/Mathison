@@ -134,9 +134,7 @@ function createMachine(operation) {
         case 'sum':
             return new SumTuringMachine();
         case 'subtract':
-            // return new SubtractTuringMachine();
-            alert('Operación de resta en desarrollo');
-            return null;
+            return new SubtractTuringMachine();
         case 'multiply':
             // return new MultiplyTuringMachine();
             alert('Operación de multiplicación en desarrollo');
@@ -195,12 +193,25 @@ function updateDisplay() {
     document.getElementById('state').textContent = currentMachine.state;
     document.getElementById('position').textContent = currentMachine.head;
     
-    // Mostrar carry solo para suma y resta
+    // Mostrar carry/borrow según la operación
     const carryElement = document.getElementById('carry');
+    const carryLabel = document.querySelector('.status-item .status-label');
+    
     if (currentMachine.carry !== undefined) {
         carryElement.textContent = currentMachine.carry;
+        if (carryLabel && carryLabel.textContent !== 'Acarreo') {
+            carryLabel.textContent = 'Acarreo';
+        }
+    } else if (currentMachine.borrow !== undefined) {
+        carryElement.textContent = currentMachine.borrow;
+        if (carryLabel && carryLabel.textContent !== 'Préstamo') {
+            carryLabel.textContent = 'Préstamo';
+        }
     } else {
         carryElement.textContent = '-';
+        if (carryLabel) {
+            carryLabel.textContent = 'Carry/Borrow';
+        }
     }
     
     document.getElementById('stepCount').textContent = currentMachine.stepCount;

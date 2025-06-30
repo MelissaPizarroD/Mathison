@@ -6,6 +6,9 @@ class SubtractTuringMachine extends BaseTuringMachine {
         this.digit1 = 0;
         this.digit2 = 0;
         this.processedDigitThisCycle = false;
+        this.isNegative = false;
+        this.originalNum1 = '';
+        this.originalNum2 = '';
     }
 
     initialize(num1, num2) {
@@ -13,19 +16,26 @@ class SubtractTuringMachine extends BaseTuringMachine {
             return false;
         }
 
-        // Verificar que num1 >= num2 para evitar números negativos
-        const decimal1 = parseInt(num1, 2);
-        const decimal2 = parseInt(num2, 2);
+        this.originalNum1 = num1;
+        this.originalNum2 = num2;
         
-        if (decimal1 < decimal2) {
-            alert('El primer número debe ser mayor o igual al segundo para evitar resultados negativos');
-            return false;
+        // Comparar números para determinar si el resultado será negativo
+        const val1 = parseInt(num1, 2);
+        const val2 = parseInt(num2, 2);
+        
+        if (val1 < val2) {
+            // Intercambiar números para hacer resta positiva y marcar como negativo
+            this.isNegative = true;
+            this.initializeBaseTape(num2, num1, '-');
+            this.logStep(`Máquina inicializada para resta: ${num1} - ${num2} (resultado será negativo, calculando ${num2} - ${num1})`);
+        } else {
+            this.isNegative = false;
+            this.initializeBaseTape(num1, num2, '-');
+            this.logStep('Máquina inicializada para resta: ' + num1 + ' - ' + num2);
         }
-
-        this.initializeBaseTape(num1, num2, '-');
+        
         this.state = 'INICIO';
         this.borrow = 0;
-        this.logStep('Máquina inicializada para resta: ' + num1 + ' - ' + num2);
         return true;
     }
 
@@ -55,7 +65,7 @@ class SubtractTuringMachine extends BaseTuringMachine {
                 } else if (symbol === '#') {
                     this.digit1 = 0;
                     this.state = 'MOVER_A_SEGUNDO_NUMERO';
-                    this.logStep('Primer número agotado, usando dígito1 = 0');
+                    this.logStep('Primer número agotado, usando dígito1 = 0, moviéndose al segundo número');
                 } else {
                     this.moveLeft();
                     this.logStep('Moviéndose a la izquierda para encontrar el dígito no procesado más a la derecha');
@@ -94,7 +104,7 @@ class SubtractTuringMachine extends BaseTuringMachine {
                 } else if (symbol === '-') {
                     this.digit2 = 0;
                     this.state = 'MOVER_A_AREA_RESULTADO';
-                    this.logStep('Segundo número agotado, usando dígito2 = 0');
+                    this.logStep('Segundo número agotado, usando dígito2 = 0, continuando con la resta');
                 } else {
                     this.moveLeft();
                     this.logStep('Moviéndose a la izquierda para encontrar el dígito no procesado más a la derecha');
@@ -121,29 +131,28 @@ class SubtractTuringMachine extends BaseTuringMachine {
                 break;
 
             case 'AGREGAR_DIGITO_RESULTADO':
-                let diff = this.digit1 - this.digit2 - this.borrow;
-                let resultDigit, newBorrow;
-                
-                if (diff < 0) {
-                    resultDigit = diff + 2;
-                    newBorrow = 1;
-                } else {
-                    resultDigit = diff;
-                    newBorrow = 0;
-                }
-                
+                let resultDigit;
                 let oldBorrow = this.borrow;
-                this.borrow = newBorrow;
+                
+                // Lógica de resta binaria con préstamo
+                if (this.digit1 >= this.digit2 + this.borrow) {
+                    resultDigit = this.digit1 - this.digit2 - this.borrow;
+                    this.borrow = 0;
+                } else {
+                    resultDigit = (2 + this.digit1) - this.digit2 - this.borrow;
+                    this.borrow = 1;
+                }
                 
                 if (symbol === '#') {
                     this.tape.splice(this.head, 0, resultDigit.toString());
-                    this.logStep(`Agregado dígito resultado ${resultDigit} (${this.digit1} - ${this.digit2} - ${oldBorrow} = ${diff}), préstamo = ${this.borrow}`);
+                    this.logStep(`Agregado dígito resultado ${resultDigit} (${this.digit1} - ${this.digit2} - ${oldBorrow} = ${resultDigit}), préstamo = ${this.borrow}`);
                 } else {
                     while (this.head < this.tape.length && this.getCurrentSymbol() !== '#') {
                         this.moveRight();
+                        this.logStep('Moviéndose a la derecha para encontrar el final del área de resultado');
                     }
                     this.tape.splice(this.head, 0, resultDigit.toString());
-                    this.logStep(`Agregado dígito resultado ${resultDigit} al final (${this.digit1} - ${this.digit2} - ${oldBorrow} = ${diff}), préstamo = ${this.borrow}`);
+                    this.logStep(`Agregado dígito resultado ${resultDigit} al final (${this.digit1} - ${this.digit2} - ${oldBorrow} = ${resultDigit}), préstamo = ${this.borrow}`);
                 }
                 
                 this.state = 'REGRESAR_AL_INICIO';
@@ -162,28 +171,71 @@ class SubtractTuringMachine extends BaseTuringMachine {
 
             case 'VERIFICAR_MAS_DIGITOS':
                 if (!this.processedDigitThisCycle && this.borrow === 0) {
+                    let hasUnprocessedDigits = false;
+                    
+                    for (let i = 1; i < this.tape.length; i++) {
+                        if (this.tape[i] === '=') {
+                            break;
+                        }
+                        if (this.tape[i] === '0' || this.tape[i] === '1') {
+                            hasUnprocessedDigits = true;
+                            this.logStep(`Encontrado dígito no procesado '${this.tape[i]}' en la posición ${i}`);
+                            break;
+                        }
+                    }
+                    
+                    if (hasUnprocessedDigits) {
+                        this.processedDigitThisCycle = false;
+                        this.head = 0;
+                        this.state = 'MOVER_A_MAS';
+                        this.logStep('Encontrados más dígitos no procesados, continuando resta');
+                        return true;
+                    } else {
+                        this.state = 'LIMPIEZA';
+                        this.logStep('Todos los dígitos procesados, iniciando limpieza');
+                        return true;
+                    }
+                } else if (!this.processedDigitThisCycle && this.borrow > 0) {
+                    this.logStep('Préstamo restante detectado - esto indica un error en el cálculo');
                     this.state = 'LIMPIEZA';
-                    this.logStep('No más dígitos y no hay préstamo, iniciando limpieza');
                     return true;
                 }
                 
                 this.processedDigitThisCycle = false;
                 
+                if ((symbol === '0' || symbol === '1') && this.head < this.tape.length) {
+                    let beforeEquals = true;
+                    for (let i = this.head; i < this.tape.length; i++) {
+                        if (this.tape[i] === '=') {
+                            beforeEquals = true;
+                            break;
+                        }
+                    }
+                    
+                    if (beforeEquals) {
+                        this.state = 'MOVER_A_MAS';
+                        this.logStep('Encontrados más dígitos no procesados, continuando resta');
+                        return true;
+                    }
+                }
+                
                 if (symbol === '=' || symbol === '#') {
                     let hasUnprocessedDigits = false;
                     
                     for (let i = 1; i < this.tape.length; i++) {
-                        if (this.tape[i] === '=') break;
+                        if (this.tape[i] === '=') {
+                            break;
+                        }
                         if (this.tape[i] === '0' || this.tape[i] === '1') {
                             hasUnprocessedDigits = true;
                             break;
                         }
                     }
                     
-                    if (hasUnprocessedDigits || this.borrow > 0) {
+                    if (hasUnprocessedDigits) {
                         this.head = 0;
-                        this.state = 'MOVER_A_MENOS';
-                        this.logStep('Encontrados más dígitos o hay préstamo, continuando');
+                        this.state = 'MOVER_A_MAS';
+                        this.logStep('Encontrados dígitos no procesados, reiniciando desde el principio');
                     } else {
                         this.state = 'LIMPIEZA';
                         this.logStep('Todos los dígitos procesados, iniciando limpieza');
@@ -194,7 +246,7 @@ class SubtractTuringMachine extends BaseTuringMachine {
                 }
                 break;
 
-            case 'MOVER_A_MENOS':
+            case 'MOVER_A_MAS':
                 if (symbol === '-') {
                     this.moveLeft();
                     this.state = 'BUSCAR_DIGITO_DERECHO1';
@@ -227,26 +279,34 @@ class SubtractTuringMachine extends BaseTuringMachine {
                     if (result.length > 0) {
                         result.reverse();
                         
-                        // Remover ceros a la izquierda
-                        while (result.length > 1 && result[0] === '0') {
-                            result.shift();
+                        // Agregar signo negativo si es necesario
+                        let finalResult = result.join('');
+                        let displayResult = finalResult;
+                        if (this.isNegative && finalResult !== '0') {
+                            displayResult = '-' + finalResult;
                         }
                         
                         this.tape = ['#'];
+                        if (this.isNegative && finalResult !== '0') {
+                            this.tape.push('-');
+                        }
                         for (let digit of result) {
                             this.tape.push(digit);
                         }
                         this.tape.push('#');
                         this.head = 1;
                         this.state = 'COMPLETO';
-                        this.logStep(`Resultado final: ${result.join('')} (${this.num1} - ${this.num2} = ${result.join('')})`);
+                        this.logStep(`Resultado final: ${displayResult} (${this.originalNum1} - ${this.originalNum2} = ${displayResult})`);
                     } else {
+                        // Resultado es 0
+                        this.tape = ['#', '0', '#'];
+                        this.head = 1;
                         this.state = 'COMPLETO';
-                        this.logStep('Resultado es 0');
+                        this.logStep(`Resultado final: 0 (${this.originalNum1} - ${this.originalNum2} = 0)`);
                     }
                 } else {
                     this.state = 'COMPLETO';
-                    this.logStep('No se encontró área de resultado');
+                    this.logStep('No se encontró área de resultado - completando');
                 }
                 break;
 
