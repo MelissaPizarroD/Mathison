@@ -153,6 +153,9 @@ function initializeMachine() {
     const num1 = document.getElementById('num1').value.trim();
     const num2 = document.getElementById('num2').value.trim();
     
+    // Ocultar alertas previas
+    hideAlert();
+    
     // Crear nueva máquina según la operación seleccionada
     currentMachine = createMachine(currentOperation);
     
@@ -165,6 +168,21 @@ function initializeMachine() {
         document.getElementById('stepBtn').disabled = false;
         document.getElementById('runBtn').disabled = false;
     }
+}
+
+// Función para mostrar alertas
+function showAlert(message) {
+    const alertContainer = document.getElementById('alertContainer');
+    const alertMessage = document.getElementById('alertMessage');
+    
+    alertMessage.textContent = message;
+    alertContainer.style.display = 'block';
+}
+
+// Función para ocultar alertas
+function hideAlert() {
+    const alertContainer = document.getElementById('alertContainer');
+    alertContainer.style.display = 'none';
 }
 
 // Función para actualizar la visualización
@@ -231,6 +249,14 @@ function updateDisplay() {
     }
     
     stepDisplay.scrollTop = stepDisplay.scrollHeight;
+    
+    // Verificar si hay algún mensaje especial en el último paso
+    if (currentMachine.steps.length > 0) {
+        const lastStep = currentMachine.steps[currentMachine.steps.length - 1];
+        if (lastStep.description.includes('¡Este número es negativo!')) {
+            showAlert('⚠️ ¡Este número es negativo! En este ejercicio académico no se representarán números binarios negativos por complemento a dos.');
+        }
+    }
 }
 
 // Función para ejecutar un paso
@@ -277,6 +303,9 @@ function resetMachine() {
         currentMachine.running = false;
     }
     currentMachine = null;
+    
+    // Ocultar alertas
+    hideAlert();
     
     document.getElementById('stepBtn').disabled = true;
     document.getElementById('runBtn').disabled = true;

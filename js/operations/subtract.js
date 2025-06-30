@@ -279,24 +279,24 @@ class SubtractTuringMachine extends BaseTuringMachine {
                     if (result.length > 0) {
                         result.reverse();
                         
-                        // Agregar signo negativo si es necesario
+                        // No agregar signo negativo, solo mostrar el número
                         let finalResult = result.join('');
-                        let displayResult = finalResult;
+                        let logMessage;
+                        
                         if (this.isNegative && finalResult !== '0') {
-                            displayResult = '-' + finalResult;
+                            logMessage = `Resultado final: ${finalResult} (${this.originalNum1} - ${this.originalNum2} = -${finalResult} en decimal). ¡Este número es negativo! En este ejercicio académico no se representarán números binarios negativos por complemento a dos.`;
+                        } else {
+                            logMessage = `Resultado final: ${finalResult} (${this.originalNum1} - ${this.originalNum2} = ${finalResult})`;
                         }
                         
                         this.tape = ['#'];
-                        if (this.isNegative && finalResult !== '0') {
-                            this.tape.push('-');
-                        }
                         for (let digit of result) {
                             this.tape.push(digit);
                         }
                         this.tape.push('#');
                         this.head = 1;
                         this.state = 'COMPLETO';
-                        this.logStep(`Resultado final: ${displayResult} (${this.originalNum1} - ${this.originalNum2} = ${displayResult})`);
+                        this.logStep(logMessage);
                     } else {
                         // Resultado es 0
                         this.tape = ['#', '0', '#'];
