@@ -377,11 +377,31 @@ class MultiplyTuringMachine extends BaseTuringMachine {
                 }
                 
                 if (soloXY) {
-                    this.state = 'INVERTIR_RESULTADOS';
-                    this.logStep('Solo quedan X/Y en multiplicador, comenzando inversión de resultados');
+                    this.state = 'LIMPIAR_ANTES_DE_IGUAL';
+                    this.head = 0;
+                    this.logStep('Solo quedan X/Y en multiplicador, comenzando limpieza orgánica hasta el =');
                 } else {
                     this.state = 'INICIO';
                     this.logStep('Aún hay dígitos por procesar, continuando');
+                }
+                break;
+
+            case 'LIMPIAR_ANTES_DE_IGUAL':
+                if (symbol === '=') {
+                    // Encontramos el =, también lo convertimos en #
+                    this.writeSymbol('#');
+                    this.moveRight();
+                    this.state = 'INVERTIR_RESULTADOS';
+                    this.logStep('Limpiado símbolo =, ahora invirtiendo resultados para suma');
+                } else if (symbol === '#') {
+                    // Ya es #, solo continuar
+                    this.moveRight();
+                    this.logStep('Posición ya limpia, continuando');
+                } else {
+                    // Convertir cualquier otro símbolo en #
+                    this.writeSymbol('#');
+                    this.moveRight();
+                    this.logStep(`Limpiando símbolo '${symbol}' → #`);
                 }
                 break;
 
@@ -433,28 +453,14 @@ class MultiplyTuringMachine extends BaseTuringMachine {
                 break;
 
             case 'PREPARAR_SUMA':
-                this.logStep('Extrayendo solo los resultados después del = para sumar');
+                this.logStep('Extrayendo números para sumar (después de limpieza)');
                 
-                // Encontrar la posición del =
-                let equalsPos = -1;
-                for (let i = 0; i < this.tape.length; i++) {
-                    if (this.tape[i] === '=') {
-                        equalsPos = i;
-                        break;
-                    }
-                }
-                
-                if (equalsPos === -1) {
-                    this.state = 'COMPLETO';
-                    this.logStep('No se encontró =, finalizando');
-                    break;
-                }
-                
-                // Extraer solo los números después del =
+                // Como ya limpiamos todo antes del =, ahora solo quedan los resultados
+                // Buscar el primer dígito válido (0 o 1)
                 let numeros = [];
                 let numeroActual = '';
                 
-                for (let i = equalsPos + 1; i < this.tape.length; i++) {
+                for (let i = 0; i < this.tape.length; i++) {
                     if (this.tape[i] === '+') {
                         if (numeroActual) {
                             numeros.push(numeroActual);
@@ -464,10 +470,18 @@ class MultiplyTuringMachine extends BaseTuringMachine {
                         if (numeroActual) {
                             numeros.push(numeroActual);
                         }
-                        break;
+                        // Si llegamos a # y no tenemos número actual, puede ser el final
+                        if (numeros.length > 0 && !numeroActual) {
+                            break;
+                        }
                     } else if (/[01]/.test(this.tape[i])) {
                         numeroActual += this.tape[i];
                     }
+                }
+                
+                // Si no encontramos números separados por +, puede ser que todo sea un solo número
+                if (numeros.length === 0 && numeroActual) {
+                    numeros.push(numeroActual);
                 }
                 
                 this.logStep(`Números extraídos para sumar: ${numeros.join(', ')}`);
@@ -479,20 +493,16 @@ class MultiplyTuringMachine extends BaseTuringMachine {
                     this.logStep(`Sumando ${numeros[i-1]} + ${numeros[i]} = ${resultado}`);
                 }
                 
-                // Reemplazar solo la parte después del = con el resultado
-                // Mantener todo antes del = igual
-                let nuevaCinta = this.tape.slice(0, equalsPos + 1); // Hasta e incluyendo =
-                
-                // Agregar el resultado
+                // Limpiar toda la cinta y dejar solo el resultado
+                this.tape = ['#'];
                 for (let digit of resultado) {
-                    nuevaCinta.push(digit);
+                    this.tape.push(digit);
                 }
-                nuevaCinta.push('#');
+                this.tape.push('#');
                 
-                this.tape = nuevaCinta;
-                this.head = equalsPos + 1; // Posicionar en el primer dígito del resultado
+                this.head = 1; // Posicionar en el primer dígito del resultado
                 this.state = 'COMPLETO';
-                this.logStep(`Resultado final de multiplicación: ${resultado} (manteniendo ${this.num1} * ${this.num2} = ${resultado})`);
+                this.logStep(`Resultado final de multiplicación: ${resultado} (${this.num1} * ${this.num2} = ${resultado})`);
                 break;
 
             case 'COMPLETO':
