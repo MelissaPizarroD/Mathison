@@ -334,27 +334,51 @@ class MultiplyTuringMachine extends BaseTuringMachine {
                 break;
 
             case 'VERIFICAR_MAS_DIGITOS_MULTIPLICADOR_REAL':
-                // Verificar si hay más 0s o 1s en el multiplicador
-                let hayMasMultiplicador = false;
-                let afterStar = false;
-                for (let i = 1; i < this.tape.length; i++) {
-                    if (this.tape[i] === '*') {
-                        afterStar = true;
-                        continue;
-                    }
-                    if (afterStar && (this.tape[i] === '=' || this.tape[i] === '+')) break;
-                    if (afterStar && (this.tape[i] === '0' || this.tape[i] === '1')) {
-                        hayMasMultiplicador = true;
-                        break;
-                    }
-                }
-                
-                if (hayMasMultiplicador) {
-                    this.state = 'AGREGAR_DESPLAZAMIENTO';
-                    this.logStep('Hay más dígitos en multiplicador, agregando desplazamiento y continuando');
+                if (symbol === '*') {
+                    // Encontramos el *, ahora recorrer el multiplicador
+                    this.moveRight();
+                    this.state = 'ESCANEAR_MULTIPLICADOR_COMPLETO';
+                    this.logStep('Encontrado *, comenzando escaneo completo del multiplicador');
                 } else {
-                    this.state = 'VERIFICAR_SOLO_XY_EN_MULTIPLICADOR';
-                    this.logStep('No hay más dígitos en multiplicador, verificando si completamos todos');
+                    this.moveRight();
+                    this.logStep('Buscando símbolo * para verificar multiplicador');
+                }
+                break;
+
+            case 'ESCANEAR_MULTIPLICADOR_COMPLETO':
+                if (symbol === '=' || symbol === '+') {
+                    // Llegamos al final del multiplicador, regresar al inicio para decidir
+                    this.state = 'REGRESAR_PARA_DECIDIR';
+                    this.logStep('Escaneo del multiplicador completado, regresando para decidir siguiente acción');
+                } else if (symbol === '0' || symbol === '1') {
+                    // Aún hay dígitos sin procesar
+                    this.state = 'REGRESAR_PARA_CONTINUAR';
+                    this.logStep(`Encontrado dígito sin procesar '${symbol}', hay más trabajo por hacer`);
+                } else {
+                    this.moveRight();
+                    this.logStep(`Escaneando multiplicador: '${symbol}'`);
+                }
+                break;
+
+            case 'REGRESAR_PARA_DECIDIR':
+                if (symbol === '#' && this.head === 0) {
+                    this.moveRight();
+                    this.state = 'BUSCAR_ASTERISCO_PARA_XY';
+                    this.logStep('Regresado al inicio, verificando si solo quedan X/Y');
+                } else {
+                    this.moveLeft();
+                    this.logStep('Regresando al inicio para decidir siguiente acción');
+                }
+                break;
+
+            case 'REGRESAR_PARA_CONTINUAR':
+                if (symbol === '#' && this.head === 0) {
+                    this.moveRight();
+                    this.state = 'AGREGAR_DESPLAZAMIENTO';
+                    this.logStep('Regresado al inicio, continuando con desplazamiento');
+                } else {
+                    this.moveLeft();
+                    this.logStep('Regresando al inicio para continuar procesamiento');
                 }
                 break;
 
@@ -404,28 +428,56 @@ class MultiplyTuringMachine extends BaseTuringMachine {
                 break;
 
             case 'VERIFICAR_SOLO_XY_EN_MULTIPLICADOR':
-                // Verificar si en el multiplicador solo quedan X e Y
-                let soloXY = true;
-                let afterStar2 = false;
-                for (let i = 1; i < this.tape.length; i++) {
-                    if (this.tape[i] === '*') {
-                        afterStar2 = true;
-                        continue;
-                    }
-                    if (afterStar2 && (this.tape[i] === '=' || this.tape[i] === '+')) break;
-                    if (afterStar2 && this.tape[i] !== 'X' && this.tape[i] !== 'Y') {
-                        soloXY = false;
-                        break;
-                    }
-                }
-                
-                if (soloXY) {
-                    this.state = 'LIMPIAR_ANTES_DE_IGUAL';
-                    this.head = 0;
-                    this.logStep('Solo quedan X/Y en multiplicador, comenzando limpieza orgánica hasta el =');
+                // Primero regresar al inicio si no estamos ahí
+                if (symbol === '#' && this.head === 0) {
+                    this.moveRight();
+                    this.state = 'BUSCAR_ASTERISCO_PARA_XY';
+                    this.logStep('En el inicio, comenzando búsqueda de * para verificar X/Y');
                 } else {
-                    this.state = 'INICIO';
-                    this.logStep('Aún hay dígitos por procesar, continuando');
+                    this.moveLeft();
+                    this.logStep('Regresando al inicio para verificar si solo quedan X/Y');
+                }
+                break;
+
+            case 'BUSCAR_ASTERISCO_PARA_XY':
+                if (symbol === '*') {
+                    // Encontramos el *, comenzar verificación del multiplicador
+                    this.moveRight();
+                    this.state = 'ESCANEAR_SOLO_XY';
+                    this.logStep('Encontrado *, verificando si multiplicador solo tiene X/Y');
+                } else {
+                    this.moveRight();
+                    this.logStep('Buscando * para verificar multiplicador');
+                }
+                break;
+
+            case 'ESCANEAR_SOLO_XY':
+                if (symbol === '=' || symbol === '+') {
+                    // Llegamos al final sin encontrar 0s o 1s, solo hay X/Y
+                    this.state = 'REGRESAR_PARA_LIMPIAR';
+                    this.logStep('Solo encontré X/Y en multiplicador, comenzando limpieza');
+                } else if (symbol === '0' || symbol === '1') {
+                    // Encontramos un dígito, aún hay trabajo por hacer
+                    this.state = 'REGRESAR_PARA_CONTINUAR';
+                    this.logStep(`Encontrado dígito '${symbol}', aún hay dígitos por procesar`);
+                } else if (symbol === 'X' || symbol === 'Y') {
+                    // Son X/Y, continuar escaneando
+                    this.moveRight();
+                    this.logStep(`Verificando: '${symbol}' (procesado)`);
+                } else {
+                    this.moveRight();
+                    this.logStep(`Escaneando: '${symbol}'`);
+                }
+                break;
+
+            case 'REGRESAR_PARA_LIMPIAR':
+                if (symbol === '#' && this.head === 0) {
+                    this.moveRight();
+                    this.state = 'LIMPIAR_ANTES_DE_IGUAL';
+                    this.logStep('Regresado al inicio, comenzando limpieza orgánica');
+                } else {
+                    this.moveLeft();
+                    this.logStep('Regresando al inicio para comenzar limpieza');
                 }
                 break;
 
