@@ -245,30 +245,49 @@ class MultiplyTuringMachine extends BaseTuringMachine {
                 break;
 
             case 'CONVERTIR_LETRAS_MULTIPLICANDO':
-                // Convertir A→0, B→1 solo ANTES del *
-                for (let i = 1; i < this.tape.length; i++) {
-                    if (this.tape[i] === '*') break;
-                    if (this.tape[i] === 'A') this.tape[i] = '0';
-                    if (this.tape[i] === 'B') this.tape[i] = '1';
+                // Convertir A→0, B→1 paso a paso ANTES del *
+                if (symbol === '*') {
+                    // Llegamos al multiplicador, pasar al siguiente estado
+                    this.state = 'CONVERTIR_LETRA_MULTIPLICADOR_A_X_Y';
+                    this.head = 0; // Reiniciar para procesar multiplicador
+                    this.logStep('Multiplicando convertido completamente, iniciando conversión del multiplicador');
+                } else if (symbol === 'A') {
+                    this.writeSymbol('0');
+                    this.moveRight();
+                    this.logStep('Convertido A→0 en multiplicando');
+                } else if (symbol === 'B') {
+                    this.writeSymbol('1');
+                    this.moveRight();
+                    this.logStep('Convertido B→1 en multiplicando');
+                } else {
+                    this.moveRight();
+                    this.logStep('Recorriendo multiplicando para conversiones');
                 }
-                this.logStep('Convertido multiplicando: A→0, B→1');
-                this.state = 'CONVERTIR_LETRA_MULTIPLICADOR_A_X_Y';
                 break;
 
             case 'CONVERTIR_LETRA_MULTIPLICADOR_A_X_Y':
-                // Convertir A→X, B→Y solo DESPUÉS del * y ANTES del =
-                let pastStar = false;
-                for (let i = 1; i < this.tape.length; i++) {
-                    if (this.tape[i] === '*') {
-                        pastStar = true;
-                        continue;
-                    }
-                    if (pastStar && (this.tape[i] === '=' || this.tape[i] === '+')) break;
-                    if (pastStar && this.tape[i] === 'A') this.tape[i] = 'X';
-                    if (pastStar && this.tape[i] === 'B') this.tape[i] = 'Y';
+                // Convertir A→X, B→Y paso a paso DESPUÉS del * y ANTES del =
+                if (symbol === '=' || symbol === '+') {
+                    // Llegamos al área de resultados, verificar más dígitos
+                    this.state = 'VERIFICAR_MAS_DIGITOS_MULTIPLICADOR_REAL';
+                    this.head = 0;
+                    this.logStep('Multiplicador convertido completamente, verificando más dígitos');
+                } else if (symbol === '*') {
+                    // Encontramos el *, ahora procesar lo que sigue
+                    this.moveRight();
+                    this.logStep('Pasando el *, comenzando conversión del multiplicador');
+                } else if (symbol === 'A') {
+                    this.writeSymbol('X');
+                    this.moveRight();
+                    this.logStep('Convertido A→X en multiplicador');
+                } else if (symbol === 'B') {
+                    this.writeSymbol('Y');
+                    this.moveRight();
+                    this.logStep('Convertido B→Y en multiplicador');
+                } else {
+                    this.moveRight();
+                    this.logStep('Recorriendo multiplicador para conversiones');
                 }
-                this.logStep('Convertido multiplicador procesado: A→X, B→Y');
-                this.state = 'VERIFICAR_MAS_DIGITOS_MULTIPLICADOR_REAL';
                 break;
 
             case 'VERIFICAR_MAS_DIGITOS_MULTIPLICADOR_REAL':
@@ -298,29 +317,46 @@ class MultiplyTuringMachine extends BaseTuringMachine {
 
             case 'AGREGAR_DESPLAZAMIENTO':
                 if (symbol === '=') {
+                    // Encontramos el =, ahora buscar el final de los resultados
                     this.moveRight();
-                    this.logStep('Encontrado =, buscando final de primera sección de resultados');
-                } else if (symbol === '#') {
-                    // Estamos al final de la primera sección de resultados
-                    this.writeSymbol('+');
-                    // Escribir ceros de desplazamiento inmediatamente
-                    for (let i = 0; i < this.currentShift; i++) {
-                        this.moveRight();
-                        this.writeSymbol('0');
-                        this.logStep(`Escribiendo cero de desplazamiento ${i + 1} de ${this.currentShift}`);
-                    }
-                    this.moveRight();
-                    this.writeSymbol('#');
-                    this.currentShift++;
-                    this.state = 'REGRESAR_AL_INICIO';
-                    this.logStep(`Agregados ${this.currentShift - 1} ceros de desplazamiento después del +`);
+                    this.logStep('Encontrado =, buscando final de resultados para agregar +');
                 } else if (symbol === '0' || symbol === '1') {
-                    // Hay más resultados, continuar buscando el final
+                    // Hay resultados, continuar buscando el final
                     this.moveRight();
                     this.logStep('Saltando dígito de resultado existente');
+                } else if (symbol === '#') {
+                    // Solo escribir + si estamos DESPUÉS del área de resultados
+                    // Verificar que hay un = antes en la cinta
+                    let hayIgualAntes = false;
+                    for (let i = 0; i < this.head; i++) {
+                        if (this.tape[i] === '=') {
+                            hayIgualAntes = true;
+                            break;
+                        }
+                    }
+                    
+                    if (hayIgualAntes) {
+                        // Estamos al final de los resultados, escribir +
+                        this.writeSymbol('+');
+                        // Escribir ceros de desplazamiento inmediatamente
+                        for (let i = 0; i < this.currentShift; i++) {
+                            this.moveRight();
+                            this.writeSymbol('0');
+                            this.logStep(`Escribiendo cero de desplazamiento ${i + 1} de ${this.currentShift}`);
+                        }
+                        this.moveRight();
+                        this.writeSymbol('#');
+                        this.currentShift++;
+                        this.state = 'REGRESAR_AL_INICIO';
+                        this.logStep(`Agregados ${this.currentShift - 1} ceros de desplazamiento después del +`);
+                    } else {
+                        // Estamos en el # inicial, continuar buscando
+                        this.moveRight();
+                        this.logStep('En # inicial, continuando búsqueda del área de resultados');
+                    }
                 } else {
                     this.moveRight();
-                    this.logStep('Buscando final de primera sección para agregar +');
+                    this.logStep('Buscando área de resultados para agregar desplazamiento');
                 }
                 break;
 
@@ -397,54 +433,66 @@ class MultiplyTuringMachine extends BaseTuringMachine {
                 break;
 
             case 'PREPARAR_SUMA':
-                this.logStep('Implementando algoritmo de suma para los productos parciales');
+                this.logStep('Extrayendo solo los resultados después del = para sumar');
                 
-                // Crear una instancia temporal de suma para procesar
-                let sumMachine = new SumTuringMachine();
-                
-                // Extraer los números a sumar
-                let numeros = [];
-                let numeroActual = '';
-                let enResultado2 = false;
-                
+                // Encontrar la posición del =
+                let equalsPos = -1;
                 for (let i = 0; i < this.tape.length; i++) {
                     if (this.tape[i] === '=') {
-                        enResultado2 = true;
-                        continue;
+                        equalsPos = i;
+                        break;
                     }
+                }
+                
+                if (equalsPos === -1) {
+                    this.state = 'COMPLETO';
+                    this.logStep('No se encontró =, finalizando');
+                    break;
+                }
+                
+                // Extraer solo los números después del =
+                let numeros = [];
+                let numeroActual = '';
+                
+                for (let i = equalsPos + 1; i < this.tape.length; i++) {
                     if (this.tape[i] === '+') {
                         if (numeroActual) {
                             numeros.push(numeroActual);
                             numeroActual = '';
                         }
-                        continue;
-                    }
-                    if (this.tape[i] === '#') {
+                    } else if (this.tape[i] === '#') {
                         if (numeroActual) {
                             numeros.push(numeroActual);
                         }
                         break;
-                    }
-                    if (enResultado2 && /[01]/.test(this.tape[i])) {
+                    } else if (/[01]/.test(this.tape[i])) {
                         numeroActual += this.tape[i];
                     }
                 }
+                
+                this.logStep(`Números extraídos para sumar: ${numeros.join(', ')}`);
                 
                 // Sumar todos los números usando el algoritmo binario
                 let resultado = numeros.length > 0 ? numeros[0] : '0';
                 for (let i = 1; i < numeros.length; i++) {
                     resultado = this.addBinaryNumbers(resultado, numeros[i]);
+                    this.logStep(`Sumando ${numeros[i-1]} + ${numeros[i]} = ${resultado}`);
                 }
                 
-                // Mostrar resultado final
-                this.tape = ['#'];
+                // Reemplazar solo la parte después del = con el resultado
+                // Mantener todo antes del = igual
+                let nuevaCinta = this.tape.slice(0, equalsPos + 1); // Hasta e incluyendo =
+                
+                // Agregar el resultado
                 for (let digit of resultado) {
-                    this.tape.push(digit);
+                    nuevaCinta.push(digit);
                 }
-                this.tape.push('#');
-                this.head = 1;
+                nuevaCinta.push('#');
+                
+                this.tape = nuevaCinta;
+                this.head = equalsPos + 1; // Posicionar en el primer dígito del resultado
                 this.state = 'COMPLETO';
-                this.logStep(`Resultado final de multiplicación: ${resultado} (${this.num1} * ${this.num2} = ${resultado})`);
+                this.logStep(`Resultado final de multiplicación: ${resultado} (manteniendo ${this.num1} * ${this.num2} = ${resultado})`);
                 break;
 
             case 'COMPLETO':
