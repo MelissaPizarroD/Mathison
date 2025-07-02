@@ -6,6 +6,8 @@ class MultiplyTuringMachine extends BaseTuringMachine {
         this.digit2 = 0;
         this.processedDigitThisCycle = false;
         this.currentShift = 0;
+        this.simboloParaEscribir = '';
+        this.invertMachine = null; // Declarar la máquina de inversión
     }
 
     initialize(num1, num2) {
@@ -502,30 +504,54 @@ class MultiplyTuringMachine extends BaseTuringMachine {
 
             case 'COMPLETAR_LIMPIEZA':
                 if (symbol === '0' || symbol === '1') {
-                    // Encontramos los primeros resultados, finalizar limpieza y reorganizar cinta
-                    this.logStep('Primeros resultados encontrados, reorganizando cinta final');
+                    // Encontramos los primeros resultados, extraer toda la secuencia
+                    this.logStep('Primeros resultados encontrados, extrayendo para inversión automática');
                     
-                    // Extraer solo los resultados (números y +)
+                    // Extraer todos los resultados válidos desde la posición actual hasta el final
                     let resultados = [];
                     for (let i = this.head; i < this.tape.length; i++) {
-                        if (this.tape[i] === '0' || this.tape[i] === '1' || this.tape[i] === '+') {
-                            resultados.push(this.tape[i]);
-                        } else if (this.tape[i] === '#' && resultados.length > 0) {
-                            // Llegamos al final de los resultados
+                        let sym = this.tape[i];
+                        // Solo agregar símbolos válidos (0, 1, +), ignorar espacios vacíos y #
+                        if (sym === '0' || sym === '1' || sym === '+') {
+                            resultados.push(sym);
+                        } else if (sym === '#') {
+                            // Llegamos al final
                             break;
                         }
+                        // Ignorar cualquier otro símbolo (espacios vacíos, etc.)
                     }
                     
-                    // Crear nueva cinta: # + resultados + #
-                    this.tape = ['#'];
-                    for (let simbolo of resultados) {
-                        this.tape.push(simbolo);
-                    }
-                    this.tape.push('#');
+                    // Verificar que tenemos una estructura válida número+número
+                    let expresionSuma = resultados.join('');
+                    this.logStep(`Secuencia extraída (limpia): "${expresionSuma}"`);
                     
-                    this.head = 1; // Posicionar en el primer resultado
-                    this.state = 'COMPLETO';
-                    this.logStep(`Limpieza completada. Cinta final: solo resultados entre ∅. Resultados: ${resultados.join('')}`);
+                    if (expresionSuma.includes('+') && expresionSuma.length > 2) {
+                        // Verificar que InvertSumTuringMachine existe
+                        if (typeof InvertSumTuringMachine !== 'undefined') {
+                            // Crear instancia de la máquina de inversión
+                            this.invertMachine = new InvertSumTuringMachine();
+                            if (this.invertMachine.initialize(expresionSuma)) {
+                                // Sincronizar cinta inicial para visualización
+                                this.tape = [...this.invertMachine.tape];
+                                this.head = this.invertMachine.head;
+                                
+                                this.state = 'EJECUTAR_INVERSION_AUTOMATICA';
+                                this.logStep(`Iniciando inversión automática de: ${expresionSuma}`);
+                                this.logStep(`Cinta de inversión sincronizada: [${this.tape.join(', ')}]`);
+                                this.logStep(`Cabezal en posición: ${this.head}`);
+                            } else {
+                                this.state = 'COMPLETO';
+                                this.logStep('Error al inicializar máquina de inversión');
+                            }
+                        } else {
+                            this.logStep('⚠️ InvertSumTuringMachine no está disponible. Asegúrate de que invert.js esté cargado.');
+                            this.state = 'COMPLETO';
+                        }
+                    } else {
+                        // No hay estructura válida para invertir
+                        this.logStep(`Estructura no válida para inversión: "${expresionSuma}"`);
+                        this.state = 'COMPLETO';
+                    }
                 } else if (symbol === '#') {
                     // Continuar limpiando hasta encontrar resultados
                     this.moveRight();
@@ -538,18 +564,266 @@ class MultiplyTuringMachine extends BaseTuringMachine {
                 }
                 break;
 
-            case 'INVERTIR_RESULTADOS':
-                this.logStep('Estado de inversión de resultados removido - usar limpieza orgánica');
-                this.state = 'COMPLETO';
+            case 'EJECUTAR_INVERSION_AUTOMATICA':
+                // Ejecutar un paso de la máquina de inversión
+                if (this.invertMachine && this.invertMachine.executeStep()) {
+                    // La máquina de inversión sigue ejecutándose
+                    // Sincronizar nuestra cinta con la de la máquina de inversión para la visualización
+                    this.tape = [...this.invertMachine.tape]; // Copiar la cinta actual
+                    this.head = this.invertMachine.head; // Sincronizar posición del cabezal
+                    
+                    // Mostrar el progreso de la inversión
+                    this.logStep(`[INVERSIÓN] ${this.invertMachine.state}`);
+                } else {
+                    // La máquina de inversión terminó
+                    if (this.invertMachine && this.invertMachine.state === 'COMPLETO') {
+                        // Copiar el resultado final de la máquina de inversión
+                        this.tape = [...this.invertMachine.tape];
+                        this.head = this.invertMachine.head;
+                        
+                        // Extraer el resultado final para mostrarlo
+                        let resultadoFinal = '';
+                        for (let i = 1; i < this.tape.length - 1; i++) {
+                            if (this.tape[i] && (this.tape[i] === '0' || this.tape[i] === '1' || this.tape[i] === '+')) {
+                                resultadoFinal += this.tape[i];
+                            }
+                        }
+                        
+                        this.logStep(`Inversión automática completada. Resultado: ${resultadoFinal}`);
+                        this.logStep('Números invertidos correctamente según algoritmo especificado');
+                    } else {
+                        this.logStep('Máquina de inversión terminó con estado no esperado');
+                    }
+                    this.state = 'COMPLETO';
+                }
                 break;
 
-            case 'PREPARAR_SUMA':
-                this.logStep('Estado de suma automática removido - los resultados están listos para suma manual');
-                this.state = 'COMPLETO';
+            case 'INICIAR_INVERSION_AUTO':
+                // Empezar desde el inicio para procesar el primer número
+                if (symbol === '#' && this.head === 0) {
+                    this.moveRight();
+                    this.state = 'BUSCAR_PRIMER_NUMERO';
+                    this.logStep('Iniciando inversión, buscando primer número');
+                } else {
+                    this.head = 0;
+                    this.logStep('Posicionándose al inicio para inversión');
+                }
+                break;
+
+            case 'BUSCAR_PRIMER_NUMERO':
+                if (symbol === '0' || symbol === '1') {
+                    this.state = 'BUSCAR_FINAL_PRIMER_NUMERO';
+                    this.logStep('Encontrado primer número, buscando su final');
+                } else {
+                    this.moveRight();
+                    this.logStep('Buscando inicio del primer número');
+                }
+                break;
+
+            case 'BUSCAR_FINAL_PRIMER_NUMERO':
+                if (symbol === '+') {
+                    // Encontramos el final del primer número
+                    this.moveLeft();
+                    this.state = 'INVERTIR_PRIMER_NUMERO';
+                    this.logStep('Encontrado final del primer número, comenzando inversión');
+                } else {
+                    this.moveRight();
+                    this.logStep('Buscando final del primer número');
+                }
+                break;
+
+            case 'INVERTIR_PRIMER_NUMERO':
+                if (symbol === '0' || symbol === '1') {
+                    // Marcar y procesar dígito del primer número
+                    this.simboloParaEscribir = symbol;
+                    this.writeSymbol('X');
+                    this.moveLeft();
+                    this.state = 'BUSCAR_INICIO_PRIMER_NUMERO';
+                    this.logStep(`Marcado dígito ${symbol} del primer número como X`);
+                } else if (symbol === 'X') {
+                    // Dígito ya procesado
+                    this.moveLeft();
+                    this.logStep('Dígito ya procesado en primer número');
+                } else if (symbol === '#') {
+                    // Terminamos el primer número, ahora procesar el segundo
+                    this.head = 0;
+                    this.state = 'SEGUNDO_NUMERO';
+                    this.logStep('Primer número completado, iniciando segundo número');
+                } else {
+                    this.moveLeft();
+                    this.logStep('Continuando hacia el inicio del primer número');
+                }
+                break;
+
+            case 'BUSCAR_INICIO_PRIMER_NUMERO':
+                if (symbol === '#') {
+                    this.moveRight();
+                    this.state = 'ESCRIBIR_DIGITO_PRIMER_NUMERO';
+                    this.logStep('Encontrado inicio, escribiendo dígito del primer número');
+                } else {
+                    this.moveLeft();
+                    this.logStep('Buscando inicio para escribir dígito del primer número');
+                }
+                break;
+
+            case 'ESCRIBIR_DIGITO_PRIMER_NUMERO':
+                if (symbol === 'Y') {
+                    // Espacio marcado para escribir
+                    this.writeSymbol(this.simboloParaEscribir);
+                    this.moveRight();
+                    this.state = 'REGRESAR_A_X_PRIMER_NUMERO';
+                    this.logStep(`Escrito ${this.simboloParaEscribir} en primer número`);
+                } else if (symbol === 'X' || symbol === '+' || symbol === '0' || symbol === '1' || symbol === '#') {
+                    // Marcar espacio y retroceder
+                    this.writeSymbol('Y');
+                    this.moveLeft();
+                    this.logStep('Marcando espacio Y en primer número');
+                } else {
+                    this.moveRight();
+                    this.logStep('Buscando posición para escribir en primer número');
+                }
+                break;
+
+            case 'REGRESAR_A_X_PRIMER_NUMERO':
+                if (symbol === 'X') {
+                    // Encontrar la X y continuar procesando
+                    this.writeSymbol(this.simboloParaEscribir);
+                    this.moveLeft();
+                    this.state = 'INVERTIR_PRIMER_NUMERO';
+                    this.logStep('X encontrada y restaurada en primer número');
+                } else {
+                    this.moveRight();
+                    this.logStep('Buscando X en primer número');
+                }
+                break;
+
+            case 'SEGUNDO_NUMERO':
+                // Empezar procesamiento del segundo número
+                if (symbol === '+') {
+                    this.moveRight();
+                    this.state = 'BUSCAR_FINAL_SEGUNDO_NUMERO';
+                    this.logStep('Encontrado +, buscando final del segundo número');
+                } else {
+                    this.moveRight();
+                    this.logStep('Buscando separador + para segundo número');
+                }
+                break;
+
+            case 'BUSCAR_FINAL_SEGUNDO_NUMERO':
+                if (symbol === '#') {
+                    this.moveLeft();
+                    this.state = 'INVERTIR_SEGUNDO_NUMERO';
+                    this.logStep('Encontrado final del segundo número, comenzando inversión');
+                } else {
+                    this.moveRight();
+                    this.logStep('Buscando final del segundo número');
+                }
+                break;
+
+            case 'INVERTIR_SEGUNDO_NUMERO':
+                if (symbol === '0' || symbol === '1') {
+                    // Marcar y procesar dígito del segundo número
+                    this.simboloParaEscribir = symbol;
+                    this.writeSymbol('X');
+                    this.moveLeft();
+                    this.state = 'BUSCAR_PLUS_SEGUNDO_NUMERO';
+                    this.logStep(`Marcado dígito ${symbol} del segundo número como X`);
+                } else if (symbol === 'X') {
+                    // Dígito ya procesado
+                    this.moveLeft();
+                    this.logStep('Dígito ya procesado en segundo número');
+                } else if (symbol === '+') {
+                    // Terminamos el segundo número, comenzar limpieza
+                    this.head = 0;
+                    this.state = 'LIMPIAR_MARCADORES_INVERSION';
+                    this.logStep('Segundo número completado, iniciando limpieza final');
+                } else {
+                    this.moveLeft();
+                    this.logStep('Continuando hacia el + del segundo número');
+                }
+                break;
+
+            case 'BUSCAR_PLUS_SEGUNDO_NUMERO':
+                if (symbol === '+') {
+                    this.moveRight();
+                    this.state = 'ESCRIBIR_DIGITO_SEGUNDO_NUMERO';
+                    this.logStep('Encontrado +, escribiendo dígito del segundo número');
+                } else {
+                    this.moveLeft();
+                    this.logStep('Buscando + para escribir dígito del segundo número');
+                }
+                break;
+
+            case 'ESCRIBIR_DIGITO_SEGUNDO_NUMERO':
+                if (symbol === 'Z') {
+                    // Espacio marcado para escribir
+                    this.writeSymbol(this.simboloParaEscribir);
+                    this.moveRight();
+                    this.state = 'REGRESAR_A_X_SEGUNDO_NUMERO';
+                    this.logStep(`Escrito ${this.simboloParaEscribir} en segundo número`);
+                } else if (symbol === 'X' || symbol === '#' || symbol === '0' || symbol === '1') {
+                    // Marcar espacio y retroceder
+                    this.writeSymbol('Z');
+                    this.moveLeft();
+                    this.logStep('Marcando espacio Z en segundo número');
+                } else {
+                    this.moveRight();
+                    this.logStep('Buscando posición para escribir en segundo número');
+                }
+                break;
+
+            case 'REGRESAR_A_X_SEGUNDO_NUMERO':
+                if (symbol === 'X') {
+                    // Encontrar la X y continuar procesando
+                    this.writeSymbol(this.simboloParaEscribir);
+                    this.moveLeft();
+                    this.state = 'INVERTIR_SEGUNDO_NUMERO';
+                    this.logStep('X encontrada y restaurada en segundo número');
+                } else {
+                    this.moveRight();
+                    this.logStep('Buscando X en segundo número');
+                }
+                break;
+
+            case 'LIMPIAR_MARCADORES_INVERSION':
+                if (symbol === 'X') {
+                    this.writeSymbol('#');
+                    this.moveRight();
+                    this.logStep('Limpiando marcador X de inversión');
+                } else if (symbol === 'Y') {
+                    this.writeSymbol('#');
+                    this.moveRight();
+                    this.logStep('Limpiando marcador Y de inversión');
+                } else if (symbol === 'Z') {
+                    this.writeSymbol('#');
+                    this.moveRight();
+                    this.logStep('Limpiando marcador Z de inversión');
+                } else if (symbol === '#') {
+                    // Verificar si hemos terminado la limpieza
+                    let hayMasMarcadores = false;
+                    for (let i = 0; i < this.tape.length; i++) {
+                        if (this.tape[i] === 'X' || this.tape[i] === 'Y' || this.tape[i] === 'Z') {
+                            hayMasMarcadores = true;
+                            break;
+                        }
+                    }
+                    if (!hayMasMarcadores) {
+                        // Reorganizar cinta final manteniendo estructura número+número
+                        this.reorganizarCintaConSeparador();
+                        this.state = 'COMPLETO';
+                        this.logStep('Inversión completada - números invertidos con separador preservado');
+                    } else {
+                        this.moveRight();
+                        this.logStep('Continuando búsqueda de marcadores');
+                    }
+                } else {
+                    this.moveRight();
+                    this.logStep('Continuando limpieza de marcadores');
+                }
                 break;
 
             case 'COMPLETO':
-                this.logStep('¡Multiplicación binaria completa!');
+                this.logStep('¡Multiplicación binaria con inversión automática completa!');
                 return false;
         }
         
@@ -581,21 +855,38 @@ class MultiplyTuringMachine extends BaseTuringMachine {
         return result || '0';
     }
 
-    // Función auxiliar para calcular el nivel de desplazamiento actual
-    getCurrentShiftLevel() {
-        // Contar cuántos X/Y hay en el multiplicador para determinar el nivel
-        let count = 0;
-        let afterStar = false;
-        for (let i = 1; i < this.tape.length; i++) {
-            if (this.tape[i] === '*') {
-                afterStar = true;
-                continue;
-            }
-            if (afterStar && (this.tape[i] === '=' || this.tape[i] === '+')) break;
-            if (afterStar && (this.tape[i] === 'X' || this.tape[i] === 'Y')) {
-                count++;
+    // Método para reorganizar la cinta final preservando la estructura número+número
+    reorganizarCintaConSeparador() {
+        let nuevaCinta = ['#'];
+        let primerNumero = '';
+        let segundoNumero = '';
+        let enSegundoNumero = false;
+        
+        // Extraer números válidos preservando la estructura
+        for (let i = 1; i < this.tape.length - 1; i++) {
+            if (this.tape[i] === '+') {
+                enSegundoNumero = true;
+            } else if (this.tape[i] === '0' || this.tape[i] === '1') {
+                if (enSegundoNumero) {
+                    segundoNumero += this.tape[i];
+                } else {
+                    primerNumero += this.tape[i];
+                }
             }
         }
-        return count;
+        
+        // Reconstruir cinta con estructura número+número
+        for (let char of primerNumero) {
+            nuevaCinta.push(char);
+        }
+        nuevaCinta.push('+');
+        for (let char of segundoNumero) {
+            nuevaCinta.push(char);
+        }
+        nuevaCinta.push('#');
+        
+        this.tape = nuevaCinta;
+        this.head = 1;
+        this.logStep(`Cinta reorganizada: ${primerNumero}+${segundoNumero} - números invertidos con separador preservado`);
     }
 }
