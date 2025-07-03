@@ -384,50 +384,46 @@ class MultiplyTuringMachine extends BaseTuringMachine {
                 }
                 break;
 
-            case 'AGREGAR_DESPLAZAMIENTO':
-                if (symbol === '=') {
-                    // Encontramos el =, ahora buscar el final de los resultados
-                    this.moveRight();
-                    this.logStep('Encontrado =, buscando final de resultados para agregar +');
-                } else if (symbol === '0' || symbol === '1') {
-                    // Hay resultados, continuar buscando el final
-                    this.moveRight();
-                    this.logStep('Saltando dígito de resultado existente');
-                } else if (symbol === '#') {
-                    // Solo escribir + si estamos DESPUÉS del área de resultados
-                    // Verificar que hay un = antes en la cinta
-                    let hayIgualAntes = false;
-                    for (let i = 0; i < this.head; i++) {
-                        if (this.tape[i] === '=') {
-                            hayIgualAntes = true;
-                            break;
-                        }
+        case 'AGREGAR_DESPLAZAMIENTO':
+            if (symbol === '=') {
+                // Encontramos el =, ahora buscar el final de los resultados
+                this.moveRight();
+                this.logStep('Encontrado =, buscando final de resultados para agregar +');
+            } else if (symbol === '0' || symbol === '1') {
+                // Hay resultados, continuar buscando el final
+                this.moveRight();
+                this.logStep('Saltando dígito de resultado existente');
+            } else if (symbol === '#') {
+                // Solo escribir + si estamos DESPUÉS del área de resultados
+                // Verificar que hay un = antes en la cinta
+                let hayIgualAntes = false;
+                for (let i = 0; i < this.head; i++) {
+                    if (this.tape[i] === '=') {
+                        hayIgualAntes = true;
+                        break;
                     }
-                    
-                    if (hayIgualAntes) {
-                        // Estamos al final de los resultados, escribir +
-                        this.writeSymbol('+');
-                        // Escribir ceros de desplazamiento inmediatamente
-                        for (let i = 0; i < this.currentShift; i++) {
-                            this.moveRight();
-                            this.writeSymbol('0');
-                            this.logStep(`Escribiendo cero de desplazamiento ${i + 1} de ${this.currentShift}`);
-                        }
-                        this.moveRight();
-                        this.writeSymbol('#');
-                        this.currentShift++;
-                        this.state = 'REGRESAR_AL_INICIO';
-                        this.logStep(`Agregados ${this.currentShift - 1} ceros de desplazamiento después del +`);
-                    } else {
-                        // Estamos en el # inicial, continuar buscando
-                        this.moveRight();
-                        this.logStep('En # inicial, continuando búsqueda del área de resultados');
-                    }
-                } else {
-                    this.moveRight();
-                    this.logStep('Buscando área de resultados para agregar desplazamiento');
                 }
-                break;
+                
+                if (hayIgualAntes) {
+                    // Estamos al final de los resultados, escribir + y AGREGAR CERO INMEDIATAMENTE
+                    this.writeSymbol('+');
+                    this.moveRight();
+                    this.writeSymbol('0'); // ← CERO AUTOMÁTICO DE DESPLAZAMIENTO
+                    this.moveRight();
+                    this.writeSymbol('#');
+                    this.currentShift++; // Incrementar para el próximo ciclo
+                    this.state = 'REGRESAR_AL_INICIO';
+                    this.logStep(`✅ Agregado + con cero automático de desplazamiento (posición ${this.currentShift})`);
+                } else {
+                    // Estamos en el # inicial, continuar buscando
+                    this.moveRight();
+                    this.logStep('En # inicial, continuando búsqueda del área de resultados');
+                }
+            } else {
+                this.moveRight();
+                this.logStep('Buscando área de resultados para agregar desplazamiento');
+            }
+            break;
 
             case 'VERIFICAR_SOLO_XY_EN_MULTIPLICADOR':
                 // Primero regresar al inicio si no estamos ahí
