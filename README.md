@@ -1,7 +1,35 @@
-##Simulador de Suma Binaria con Máquina de Turing
+# Mathison - Calculadora con Máquina de Turing
 
-Este simulador implementa una máquina de Turing que realiza la suma de dos números binarios. Utiliza una cinta lineal donde coloca los dos operandos separados por un símbolo `+`, y produce el resultado después de un símbolo `=`. La máquina recorre la cinta desde el bit menos significativo al más significativo, sumando cada par de bits junto con un **acarreo (`carry`) almacenado en el estado. 
+## Limitaciones de Mathison
 
-Aunque no realiza directamente la operación aritmética `(X + Y + carry) % 2` ni `(X + Y + carry) / 2`, simula su efecto usando transiciones finitas para cada una de las 8 combinaciones posibles de bits y acarreo. El resultado parcial se escribe en la cinta y luego se invierte para que quede en orden correcto. 
+1. **SUMA**: Solo se puede entre dos números binarios.
+2. **RESTA**: Solo se puede entre dos números binarios.
+3. **MULTIPLICACIÓN**: El multiplicador (segundo número) debe tener SOLO DOS DÍGITOS.
+4. **MANEJO DE RESULTADOS**: Para la resta, se le avisará cuando el número es negativo.
 
-A pesar de estar implementada en JavaScript, la lógica respeta el modelo teórico de una máquina de Turing: cinta infinita (simulada), cabezal de lectura/escritura, conjunto finito de estados, y transiciones condicionadas por símbolos.
+## Descripción
+
+Mathison es un simulador interactivo que implementa operaciones aritméticas básicas utilizando el modelo teórico de una máquina de Turing. Permite visualizar paso a paso cómo se ejecutan las operaciones binarias siguiendo los principios fundamentales de la computación teórica.
+
+## Características
+
+- Suma de números binarios
+- Resta de números binarios  
+- Multiplicación de números binarios (limitada)
+- Visualización paso a paso del proceso
+- Interfaz intuitiva y educativa
+
+## Uso
+
+1. Selecciona la operación deseada (Suma, Resta, o Multiplicación)
+2. Ingresa los números binarios en los campos correspondientes
+3. Haz clic en "Inicializar" para preparar la máquina
+4. Usa "Paso Adelante" para ver cada transición o "Ejecutar Automático" para ver el proceso completo
+5. Observa cómo la máquina procesa los datos en la cinta y llega al resultado
+
+## Tecnologías
+
+- HTML5
+- CSS3 con gradientes y animaciones
+- JavaScript vanilla
+- Arquitectura modular para diferentes operaciones
