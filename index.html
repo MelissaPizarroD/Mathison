@@ -1,93 +1,120 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mathison</title>
 
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
 
-    <link rel="stylesheet" href="styles/main.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles/main.css" />
+  </head>
+  <body>
     <div class="container">
-        <h1>Mathison</h1>
-        <h1>Calculadora de Binarios con Máquinas de Turing</h1>
-        
-        <div class="operation-selector">
-            <h3>Seleccionar Operación</h3>
-            <div class="operation-buttons">
-                <button class="operation-btn active" data-operation="sum">➕ Suma</button>
-                <button class="operation-btn" data-operation="subtract">➖ Resta</button>
-                <button class="operation-btn" data-operation="multiply">✖️ Multiplicación</button>
-            </div>
-        </div>
+      <h1>Mathison</h1>
+      <h1>Calculadora de Binarios con Máquinas de Turing</h1>
 
-        <div class="algorithm-description" id="algorithmDescription">
-            <h3>Limitaciones de Mathison</h3>
-            <ol id="algorithmSteps">
-                <li>SUMA: Solo se puede entre dos números binarios.</li>
-                <li>RESTA: Solo se puede entre dos números binarios</li>
-                <li>MULTIPLICACIÓN: El multiplicador (segundo número) debe tener SOLO DOS DÍGITOS.</li>
-                <li>MANEJO DE RESULTADOS: Para la resta, se le avisará cuando el número es negativo.</li>
-            </ol>
+      <div class="operation-selector">
+        <h3>Seleccionar Operación</h3>
+        <div class="operation-buttons">
+          <button class="operation-btn active" data-operation="sum">
+            ➕ Suma
+          </button>
+          <button class="operation-btn" data-operation="subtract">
+            ➖ Resta
+          </button>
+          <button class="operation-btn" data-operation="multiply">
+            ✖️ Multiplicación
+          </button>
         </div>
+      </div>
 
-        <div class="input-section">
-            <div class="input-group">
-                <label>Primer Número Binario:</label>
-                <input type="text" id="num1" placeholder="1011" value="1011">
-            </div>
-            <div class="input-group">
-                <label>Segundo Número Binario:</label>
-                <input type="text" id="num2" placeholder="101" value="101">
-            </div>
-            <button onclick="initializeMachine()">Inicializar</button>
+      <div class="algorithm-description" id="algorithmDescription">
+        <h3>Limitaciones de Mathison</h3>
+        <ol id="algorithmSteps">
+          <li>SUMA: Solo se puede entre dos números binarios.</li>
+          <li>RESTA: Solo se puede entre dos números binarios</li>
+          <li>
+            MULTIPLICACIÓN: El multiplicador (segundo número) debe tener SOLO
+            DOS DÍGITOS.
+          </li>
+          <li>
+            MANEJO DE RESULTADOS: Para la resta, se le avisará cuando el número
+            es negativo.
+          </li>
+        </ol>
+      </div>
+
+      <div class="input-section">
+        <div class="input-group">
+          <label>Primer Número Binario:</label>
+          <input type="text" id="num1" placeholder="1011" value="1011" />
         </div>
-
-        <div class="tape-container">
-            <div class="tape" id="tape"></div>
+        <div class="input-group">
+          <label>Segundo Número Binario:</label>
+          <input type="text" id="num2" placeholder="101" value="101" />
         </div>
+        <button onclick="initializeMachine()">Inicializar</button>
+      </div>
 
-        <div class="alert-container" id="alertContainer" style="display: none;">
-            <div class="alert" id="alertMessage"></div>
+      <div class="tape-container">
+        <div class="tape" id="tape"></div>
+      </div>
+
+      <div class="alert-container" id="alertContainer" style="display: none">
+        <div class="alert" id="alertMessage"></div>
+      </div>
+
+      <div class="status">
+        <div class="status-item">
+          <div class="status-label">Estado Actual</div>
+          <div class="status-value" id="state">LISTO</div>
         </div>
-
-        <div class="status">
-            <div class="status-item">
-                <div class="status-label">Estado Actual</div>
-                <div class="status-value" id="state">LISTO</div>
-            </div>
-            <div class="status-item">
-                <div class="status-label">Posición del Cabezal</div>
-                <div class="status-value" id="position">-</div>
-            </div>
-            <div class="status-item">
-                <div class="status-label">Acarreo/Préstamo</div>
-                <div class="status-value" id="carry">0</div>
-            </div>
-            <div class="status-item">
-                <div class="status-label">Paso</div>
-                <div class="status-value" id="stepCount">0</div>
-            </div>
+        <div class="status-item">
+          <div class="status-label">Posición del Cabezal</div>
+          <div class="status-value" id="position">-</div>
         </div>
-
-        <div class="controls">
-            <button onclick="stepForward()" id="stepBtn">Paso Adelante</button>
-            <button onclick="runAutomatic()" id="runBtn">Ejecutar Automático</button>
-            <button onclick="resetMachine()" id="resetBtn">Reiniciar</button>
-            <div class="speed-control">
-                <label>Velocidad:</label>
-                <input type="range" id="speed" min="100" max="2000" value="800">
-                <span id="speedValue">800ms</span>
-            </div>
+        <div class="status-item">
+          <div class="status-label">Acarreo/Préstamo</div>
+          <div class="status-value" id="carry">0</div>
         </div>
+        <div class="status-item">
+          <div class="status-label">Paso</div>
+          <div class="status-value" id="stepCount">0</div>
+        </div>
+      </div>
 
-        <div class="step-display" id="stepDisplay"></div>
+      <div class="controls">
+        <button onclick="stepForward()" id="stepBtn">Paso Adelante</button>
+        <button onclick="runAutomatic()" id="runBtn">
+          Ejecutar Automático
+        </button>
+        <button onclick="resetMachine()" id="resetBtn">Reiniciar</button>
+        <div class="speed-control">
+          <label>Velocidad:</label>
+          <input type="range" id="speed" min="100" max="2000" value="800" />
+          <span id="speedValue">800ms</span>
+        </div>
+      </div>
+
+      <div class="step-display" id="stepDisplay"></div>
     </div>
+
+    <footer class="footer">
+      <p>
+        Desarrollado por:
+        <a href="https://github.com/MelissaPizarroD" target="_blank"
+          >https://github.com/MelissaPizarroD</a
+        >
+        y
+        <a href="https://github.com/Sofhia16" target="_blank"
+          >https://github.com/Sofhia16</a
+        >
+      </p>
+    </footer>
 
     <!-- Scripts -->
     <script src="js/base-machine.js"></script>
@@ -96,5 +123,5 @@
     <script src="js/operations/multiply.js"></script>
     <script src="js/operations/invert.js"></script>
     <script src="js/main.js"></script>
-</body>
+  </body>
 </html>
