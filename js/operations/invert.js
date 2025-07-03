@@ -142,12 +142,13 @@ class InvertTuringMachine extends BaseTuringMachine {
 class InvertSumTuringMachine extends BaseTuringMachine {
     constructor() {
         super();
-        this.maxSteps = 50; // MUY LIMITADO para evitar bucles
+        this.maxSteps = 150;
         this.currentPhase = 'INICIAL';
+        this.simboloParaEscribir = '';
     }
 
     initialize(sumExpression) {
-        this.logStep(`🚀 INICIO SIMPLE: "${sumExpression}"`);
+        this.logStep(`🚀 INICIO: "${sumExpression}"`);
         
         let clean = '';
         for (let char of sumExpression) {
@@ -166,10 +167,11 @@ class InvertSumTuringMachine extends BaseTuringMachine {
         this.stepCount = 0;
         this.steps = [];
         this.running = false;
-        this.state = 'FASE_1_IR_AL_FINAL';
-        this.currentPhase = 'CREAR_IGUAL';
+        this.state = 'INICIO';
+        this.currentPhase = 'AGREGAR_IGUAL';
+        this.simboloParaEscribir = '';
         
-        this.logStep(`📋 Cinta: [${this.tape.join(', ')}]`);
+        this.logStep(`📋 Cinta inicial: [${this.tape.join(', ')}]`);
         return true;
     }
 
@@ -177,208 +179,248 @@ class InvertSumTuringMachine extends BaseTuringMachine {
         this.stepCount++;
         
         if (this.stepCount > this.maxSteps) {
-            this.logStep(`⏹️ PARADO en paso ${this.maxSteps} - FASE: ${this.currentPhase}`);
-            this.logStep(`📊 Estado: ${this.state}, Posición: ${this.head}`);
-            this.logStep(`📋 Cinta final: [${this.tape.join(', ')}]`);
-            
-            // Intentar extraer lo que tengamos
-            this.extraerLoQueTengamos();
+            this.logStep(`⏹️ LÍMITE ALCANZADO en paso ${this.maxSteps}`);
+            this.extraerResultadoFinal();
             this.state = 'COMPLETO';
             return false;
         }
         
         let symbol = this.getCurrentSymbol();
-        this.logStep(`🔍 Paso ${this.stepCount}: ${this.state} | Pos:${this.head} | '${symbol}' | Fase:${this.currentPhase}`);
+        this.logStep(`🔍 Paso ${this.stepCount}: ${this.state} | Pos:${this.head} | '${symbol}'`);
         
         switch (this.state) {
-            // FASE 1: Crear = al final
-            case 'FASE_1_IR_AL_FINAL':
-                if (symbol === '#' && this.head > 0) {
+            case 'INICIO':
+                if (symbol === '#' && this.head === 0) {
+                    this.moveRight();
+                    this.state = 'BUSCAR_FINAL_ORIGINAL';
+                } else {
+                    this.moveRight();
+                }
+                break;
+
+            case 'BUSCAR_FINAL_ORIGINAL':
+                if (symbol === '#') {
                     this.writeSymbol('=');
                     this.moveRight();
                     this.writeSymbol('#');
-                    this.currentPhase = 'FASE_2_PROCESAR_SEGUNDO';
-                    this.state = 'FASE_2_BUSCAR_SEGUNDO';
-                    this.logStep('✅ FASE 1 COMPLETA: = creado');
+                    this.currentPhase = 'PROCESAR_SEGUNDO_NUMERO';
+                    this.state = 'IR_A_SEGUNDO_NUMERO';
+                    this.logStep('✅ = agregado al final, procesando segundo número');
                 } else {
                     this.moveRight();
                 }
                 break;
 
-            // FASE 2: Procesar SOLO el segundo número
-            case 'FASE_2_BUSCAR_SEGUNDO':
-                if (symbol === '1') { // Solo buscar el último dígito específico
-                    this.writeSymbol('X');
-                    this.moveRight();
-                    this.state = 'FASE_2_ESCRIBIR_UNO';
-                    this.logStep('✅ Encontrado 1 del segundo número');
+            // FASE 1: PROCESAR SEGUNDO NÚMERO (después del +)
+            case 'IR_A_SEGUNDO_NUMERO':
+                if (symbol === '=') {
+                    this.moveLeft(); // Ir hacia el segundo número
+                    this.state = 'BUSCAR_ULTIMO_DIGITO_SEGUNDO';
+                    this.logStep('Posicionándose para encontrar último dígito del segundo número');
                 } else {
                     this.moveLeft();
                 }
                 break;
 
-            case 'FASE_2_ESCRIBIR_UNO':
-                if (symbol === '=') {
-                    this.moveRight();
-                } else if (symbol === '#') {
-                    this.writeSymbol('1');
-                    this.moveRight();
-                    this.writeSymbol('#');
-                    this.state = 'FASE_3_BUSCAR_CERO';
-                    this.logStep('✅ Escrito 1 después del =');
-                } else {
-                    this.moveRight();
-                }
-                break;
-
-            case 'FASE_3_BUSCAR_CERO':
-                if (symbol === '0' && this.head < 10) { // Buscar el 0 del segundo número
+            case 'BUSCAR_ULTIMO_DIGITO_SEGUNDO':
+                if (symbol === '0' || symbol === '1') {
+                    // Encontramos el dígito más a la derecha del segundo número
+                    this.simboloParaEscribir = symbol;
                     this.writeSymbol('X');
                     this.moveRight();
-                    this.state = 'FASE_3_ESCRIBIR_CERO';
-                    this.logStep('✅ Encontrado 0 del segundo número');
+                    this.state = 'ESCRIBIR_SEGUNDO_DERECHA';
+                    this.logStep(`✅ Último dígito del segundo número: '${symbol}' → X`);
                 } else {
                     this.moveLeft();
                 }
                 break;
 
-            case 'FASE_3_ESCRIBIR_CERO':
+            case 'ESCRIBIR_SEGUNDO_DERECHA':
                 if (symbol === '=') {
                     this.moveRight();
-                    this.logStep('Pasando el = para escribir después');
-                } else if (symbol === '1') { // Ya hay el 1, buscar después
-                    this.moveRight();
-                    this.logStep('Ya hay 1, buscando posición después');
                 } else if (symbol === '#') {
-                    // Escribir el 0 al final (después del 1)
-                    this.writeSymbol('0');
+                    this.writeSymbol(this.simboloParaEscribir);
                     this.moveRight();
                     this.writeSymbol('#');
-                    this.state = 'FASE_4_AGREGAR_PLUS';
-                    this.currentPhase = 'AGREGAR_PLUS';
-                    this.logStep('✅ Escrito 0 después del 1 → segundo número = 10');
-                } else if (symbol === 'X') {
-                    // ¡NUNCA sobrescribir X! Continuar buscando
-                    this.moveRight();
-                    this.logStep('⚠️ X encontrada, NO sobrescribir, continuando...');
+                    this.state = 'REGRESAR_A_X_SEGUNDO';
+                    this.logStep(`✅ Escrito '${this.simboloParaEscribir}' del segundo número`);
                 } else {
-                    // Solo escribir si NO es X
-                    this.writeSymbol('0');
-                    this.state = 'FASE_4_AGREGAR_PLUS';
-                    this.currentPhase = 'AGREGAR_PLUS';
-                    this.logStep('✅ Escrito 0, segundo número = 10');
+                    this.moveRight();
                 }
                 break;
 
-            // FASE 4: Agregar + al final
-            case 'FASE_4_AGREGAR_PLUS':
+            case 'REGRESAR_A_X_SEGUNDO':
+                if (symbol === 'X') {
+                    this.moveLeft(); // Buscar el siguiente dígito hacia la izquierda
+                    this.state = 'BUSCAR_SIGUIENTE_SEGUNDO';
+                    this.logStep('Buscando siguiente dígito del segundo número hacia la izquierda');
+                } else {
+                    this.moveLeft();
+                }
+                break;
+
+            case 'BUSCAR_SIGUIENTE_SEGUNDO':
+                if (symbol === '0' || symbol === '1') {
+                    // Encontrado siguiente dígito del segundo número
+                    this.simboloParaEscribir = symbol;
+                    this.writeSymbol('X');
+                    this.moveRight();
+                    this.state = 'ESCRIBIR_SEGUNDO_SIGUIENTE';
+                    this.logStep(`✅ Siguiente dígito del segundo número: '${symbol}' → X`);
+                } else if (symbol === '+') {
+                    // Ya no hay más dígitos en el segundo número
+                    this.currentPhase = 'AGREGAR_PLUS_SEGUNDO';
+                    this.state = 'BUSCAR_FINAL_PARA_PLUS_SEGUNDO';
+                    this.logStep('✅ Segundo número completado, agregando + al resultado');
+                } else {
+                    this.moveLeft();
+                }
+                break;
+
+            case 'ESCRIBIR_SEGUNDO_SIGUIENTE':
+                if (symbol === '=') {
+                    this.moveRight();
+                } else if (symbol === '0' || symbol === '1') {
+                    this.moveRight(); // Pasar los dígitos ya escritos
+                } else if (symbol === '#') {
+                    this.writeSymbol(this.simboloParaEscribir);
+                    this.moveRight();
+                    this.writeSymbol('#');
+                    this.state = 'REGRESAR_A_X_SEGUNDO';
+                    this.logStep(`✅ Escrito '${this.simboloParaEscribir}' del segundo número`);
+                } else {
+                    this.moveRight();
+                }
+                break;
+
+            case 'BUSCAR_FINAL_PARA_PLUS_SEGUNDO':
                 if (symbol === '#') {
                     this.writeSymbol('+');
                     this.moveRight();
                     this.writeSymbol('#');
-                    this.currentPhase = 'PROCESAR_PRIMER';
-                    this.state = 'FASE_5_BUSCAR_PRIMER_CERO_1';
-                    this.logStep('✅ + agregado, procesando primer número');
+                    this.currentPhase = 'PROCESAR_PRIMER_NUMERO';
+                    this.state = 'IR_A_PRIMER_NUMERO';
+                    this.logStep('✅ + agregado después del segundo número invertido');
+                } else if (symbol === '0' || symbol === '1') {
+                    this.moveRight(); // Pasar los dígitos ya escritos del segundo número
                 } else {
                     this.moveRight();
                 }
                 break;
 
-            // FASE 5: Procesar primer número (00 → 00)
-            case 'FASE_5_BUSCAR_PRIMER_CERO_1':
-                if (symbol === '0' && this.head < 5) { // Primer 0
-                    this.writeSymbol('Y');
+            // FASE 2: PROCESAR PRIMER NÚMERO (antes del +)
+            case 'IR_A_PRIMER_NUMERO':
+                if (symbol === '#' && this.head === 0) {
                     this.moveRight();
-                    this.state = 'FASE_5_ESCRIBIR_PRIMER_CERO_1';
-                    this.logStep('✅ Primer 0 del primer número marcado');
+                    this.state = 'BUSCAR_ULTIMO_DIGITO_PRIMER';
+                    this.logStep('Posicionándose para procesar primer número');
                 } else {
                     this.moveLeft();
                 }
                 break;
 
-            case 'FASE_5_ESCRIBIR_PRIMER_CERO_1':
-                if (symbol === '+' && this.head > 15) { // + final
-                    this.moveRight();
-                } else if (symbol === '#') {
-                    this.writeSymbol('0');
-                    this.moveRight();
-                    this.writeSymbol('#');
-                    this.state = 'FASE_6_BUSCAR_PRIMER_CERO_2';
-                    this.logStep('✅ Primer 0 escrito al final');
+            case 'BUSCAR_ULTIMO_DIGITO_PRIMER':
+                if (symbol === '+') {
+                    this.moveLeft(); // Ir al último dígito del primer número
+                    this.state = 'PROCESAR_DIGITO_PRIMER';
                 } else {
                     this.moveRight();
                 }
                 break;
 
-            case 'FASE_6_BUSCAR_PRIMER_CERO_2':
-                if (symbol === '0' && this.head < 5 && this.tape[this.head] !== 'Y') { 
-                    // Buscar 0 sin marcar en el primer número
+            case 'PROCESAR_DIGITO_PRIMER':
+                if (symbol === '0' || symbol === '1') {
+                    this.simboloParaEscribir = symbol;
                     this.writeSymbol('Y');
                     this.moveRight();
-                    this.state = 'FASE_6_ESCRIBIR_PRIMER_CERO_2';
-                    this.logStep('✅ Segundo 0 del primer número marcado como Y');
+                    this.state = 'ESCRIBIR_PRIMER_DERECHA';
+                    this.logStep(`✅ Dígito del primer número: '${symbol}' → Y`);
                 } else if (symbol === 'Y') {
-                    // Ya procesado, continuar buscando
-                    this.moveLeft();
-                    this.logStep('Y ya procesado, buscando más hacia la izquierda');
+                    this.moveLeft(); // Continuar buscando hacia la izquierda
                 } else if (symbol === '#') {
-                    // Llegamos al inicio, verificar si hay más 0s sin marcar
-                    let hayMasDigitos = false;
-                    for (let i = 1; i < this.tape.length; i++) {
-                        if (this.tape[i] === '+') break; // Solo buscar antes del +
-                        if (this.tape[i] === '0' || this.tape[i] === '1') {
-                            hayMasDigitos = true;
-                            break;
-                        }
-                    }
-                    
-                    if (hayMasDigitos) {
-                        this.moveRight();
-                        this.logStep('Hay más dígitos sin marcar, continuando búsqueda');
-                    } else {
-                        // Ya no hay más, terminar
-                        this.currentPhase = 'TERMINAR';
-                        this.state = 'FASE_FINAL';
-                        this.logStep('✅ Todos los dígitos del primer número procesados');
-                    }
+                    // Ya no hay más dígitos en el primer número
+                    this.currentPhase = 'LIMPIAR';
+                    this.state = 'LIMPIAR_MARCADORES';
+                    this.logStep('✅ Primer número completado, iniciando limpieza');
                 } else {
                     this.moveLeft();
-                    this.logStep('Continuando búsqueda hacia la izquierda');
                 }
                 break;
 
-            case 'FASE_6_ESCRIBIR_PRIMER_CERO_2':
-                if (symbol === '+' && this.head > 15) { // + final
+            case 'ESCRIBIR_PRIMER_DERECHA':
+                if (symbol === '+') {
                     this.moveRight();
-                } else if (symbol === '0') { // Ya hay el primer 0
+                    this.state = 'ESCRIBIR_PRIMER_DESPUES_PLUS';
+                } else {
                     this.moveRight();
+                }
+                break;
+
+            case 'ESCRIBIR_PRIMER_DESPUES_PLUS':
+                if (symbol === '0' || symbol === '1') {
+                    this.moveRight(); // Pasar el segundo número invertido
+                } else if (symbol === '+') {
+                    this.moveRight(); // Pasar el + del resultado
                 } else if (symbol === '#') {
-                    this.writeSymbol('0');
+                    this.writeSymbol(this.simboloParaEscribir);
                     this.moveRight();
                     this.writeSymbol('#');
-                    this.currentPhase = 'TERMINAR';
-                    this.state = 'FASE_FINAL';
-                    this.logStep('✅ Primer número invertido: 00 → 00');
+                    this.state = 'REGRESAR_A_Y_PRIMER';
+                    this.logStep(`✅ Escrito '${this.simboloParaEscribir}' del primer número`);
+                } else if (symbol === 'X') {
+                    this.moveRight(); // Pasar marcadores del segundo número
                 } else {
-                    this.writeSymbol('0');
-                    this.currentPhase = 'TERMINAR';
-                    this.state = 'FASE_FINAL';
-                    this.logStep('✅ Inversión completa');
+                    this.moveRight();
                 }
                 break;
 
-            case 'FASE_FINAL':
-                this.extraerResultadoEspecifico();
-                this.state = 'COMPLETO';
+            case 'REGRESAR_A_Y_PRIMER':
+                if (symbol === 'Y') {
+                    this.moveLeft(); // Buscar siguiente dígito hacia la izquierda
+                    this.state = 'PROCESAR_DIGITO_PRIMER';
+                } else {
+                    this.moveLeft();
+                }
+                break;
+
+            // FASE 3: LIMPIAR TODO ANTES DEL = (INCLUYENDO EL =)
+            case 'LIMPIAR_MARCADORES':
+                if (symbol === '#' && this.head === 0) {
+                    this.moveRight();
+                    this.state = 'BUSCAR_Y_LIMPIAR_HASTA_IGUAL';
+                    this.logStep('Iniciando limpieza: borrando todo hasta encontrar =');
+                } else {
+                    this.moveLeft();
+                }
+                break;
+
+            case 'BUSCAR_Y_LIMPIAR_HASTA_IGUAL':
+                if (symbol === '=') {
+                    // Encontramos el =, también lo borramos
+                    this.writeSymbol('#');
+                    this.moveRight();
+                    this.logStep('Encontrado =, borrándolo también');
+                    // Ahora extraer lo que queda
+                    this.extraerResultadoFinal();
+                    this.state = 'COMPLETO';
+                } else if (symbol === '#') {
+                    // Es un espacio vacío, solo continuar
+                    this.moveRight();
+                } else {
+                    // Cualquier otro símbolo antes del =, borrarlo
+                    this.writeSymbol('#');
+                    this.moveRight();
+                    this.logStep(`Borrando '${symbol}' antes del = → #`);
+                }
                 break;
 
             case 'COMPLETO':
-                this.logStep('🎉 ¡COMPLETADO!');
+                this.logStep('🎉 ¡INVERSIÓN COMPLETADA!');
                 return false;
 
             default:
                 this.logStep(`❌ Estado desconocido: ${this.state}`);
-                this.extraerLoQueTengamos();
+                this.extraerResultadoFinal();
                 this.state = 'COMPLETO';
                 return false;
         }
@@ -386,70 +428,44 @@ class InvertSumTuringMachine extends BaseTuringMachine {
         return true;
     }
 
-    extraerResultadoEspecifico() {
-        this.logStep('🔍 Extrayendo resultado específico...');
-        this.logStep(`📋 Cinta antes de extraer: [${this.tape.join(', ')}]`);
+    extraerResultadoFinal() {
+        this.logStep('🔍 Extrayendo resultado final y compactando cinta...');
+        this.logStep(`📋 Cinta antes de compactar: [${this.tape.join(', ')}]`);
         
-        // Contar cuántos números tenemos después de los separadores
-        let numerosResultado = '';
-        let enAreaResultado = false;
-        
-        for (let i = 1; i < this.tape.length - 1; i++) {
-            if (this.tape[i] === '=' || enAreaResultado) {
-                enAreaResultado = true;
-                if (this.tape[i] === '0' || this.tape[i] === '1') {
-                    numerosResultado += this.tape[i];
-                } else if (this.tape[i] === '+') {
-                    numerosResultado += '+';
-                }
+        // Extraer SOLO los caracteres válidos (0, 1, +) ignorando todos los #
+        let resultado = '';
+        for (let i = 0; i < this.tape.length; i++) {
+            let sym = this.tape[i];
+            if (sym === '0' || sym === '1' || sym === '+') {
+                resultado += sym;
             }
         }
         
-        this.logStep(`🔍 Números extraídos del área de resultado: "${numerosResultado}"`);
-        
-        // Para 00+01, el resultado correcto debe ser 00+10
-        // Segundo número: 01 → 10 ✅
-        // Primer número: 00 → 00 ✅
-        
-        this.tape = ['#', '0', '0', '+', '1', '0', '#'];
-        this.head = 1;
-        this.logStep('🎯 RESULTADO CORRECTO FORZADO: 00+10');
-    }
-
-    extraerLoQueTengamos() {
-        this.logStep('⚠️ Extrayendo resultado parcial...');
-        
-        let primer = '';
-        let segundo = '';
-        let despuesPlus = false;
-        
-        for (let i = 1; i < this.tape.length - 1; i++) {
-            if (this.tape[i] === '+') {
-                despuesPlus = true;
-            } else if (this.tape[i] === '0' || this.tape[i] === '1') {
-                if (despuesPlus) {
-                    segundo += this.tape[i];
-                } else {
-                    primer += this.tape[i];
-                }
-            }
-        }
-        
-        if (primer && segundo) {
+        if (resultado) {
+            this.logStep(`📊 RESULTADO EXTRAÍDO: "${resultado}"`);
+            
+            // RECONSTRUIR CINTA COMPLETAMENTE: # + resultado + #
             this.tape = ['#'];
-            for (let char of primer) {
-                this.tape.push(char);
-            }
-            this.tape.push('+');
-            for (let char of segundo) {
+            for (let char of resultado) {
                 this.tape.push(char);
             }
             this.tape.push('#');
+            
+            // Posicionar cabezal al inicio del resultado
             this.head = 1;
-            this.logStep(`📊 RESULTADO PARCIAL: ${primer}+${segundo}`);
+            
+            this.logStep(`✅ Cinta compactada: [${this.tape.join(', ')}]`);
+        } else {
+            this.logStep('⚠️ No se encontró resultado válido para extraer');
+            // Cinta mínima si no hay resultado
+            this.tape = ['#', '#'];
+            this.head = 1;
         }
+        
+        this.logStep(`📋 CINTA FINAL COMPACTA: [${this.tape.join(', ')}]`);
     }
 }
+
 
 function initializeInversion(number) {
     const invertMachine = new InvertTuringMachine();
