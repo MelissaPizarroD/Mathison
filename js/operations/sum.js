@@ -6,6 +6,10 @@ class SumTuringMachine extends BaseTuringMachine {
         this.digit1 = 0;
         this.digit2 = 0;
         this.processedDigitThisCycle = false;
+        this.invertMachine = null; // Referencia a la máquina de inversión
+        this.currentPhase = 'SUMAR'; // 'SUMAR' o 'INVERTIR'
+        this.maxSteps = 500; // Aumentamos el límite para incluir la inversión
+        this.resultadoParaInvertir = ''; // Para guardar el resultado antes de la limpieza
     }
 
     initialize(num1, num2) {
@@ -16,12 +20,42 @@ class SumTuringMachine extends BaseTuringMachine {
         this.initializeBaseTape(num1, num2, '+');
         this.state = 'INICIO';
         this.carry = 0;
+        this.currentPhase = 'SUMAR';
+        this.invertMachine = null;
+        this.resultadoParaInvertir = '';
         this.logStep('Máquina inicializada para suma: ' + num1 + ' + ' + num2);
         return true;
     }
 
     executeStep() {
         this.stepCount++;
+        
+        if (this.stepCount > this.maxSteps) {
+            this.logStep(`⏹️ LÍMITE ALCANZADO en paso ${this.maxSteps}`);
+            this.state = 'COMPLETO';
+            return false;
+        }
+
+        // Si estamos en fase de inversión, delegar a la máquina de inversión
+        if (this.currentPhase === 'INVERTIR' && this.invertMachine) {
+            let continuar = this.invertMachine.executeStep();
+            
+            // Actualizar nuestra cinta y cabezal con el estado de la máquina de inversión
+            this.tape = [...this.invertMachine.tape];
+            this.head = this.invertMachine.head;
+            
+            // Log del progreso de la inversión
+            this.logStep(`INVERSIÓN: Estado=${this.invertMachine.state}, Pos=${this.invertMachine.head}, Símbolo='${this.invertMachine.getCurrentSymbol()}'`);
+            
+            if (!continuar) {
+                // La inversión ha terminado
+                this.state = 'COMPLETO';
+                this.logStep(`🎉 INVERSIÓN DEL RESULTADO COMPLETADA! Resultado final invertido: [${this.tape.join(', ')}]`);
+                return false;
+            }
+            return true;
+        }
+
         let symbol = this.getCurrentSymbol();
         
         switch (this.state) {
@@ -254,7 +288,7 @@ class SumTuringMachine extends BaseTuringMachine {
                 break;
 
             case 'LIMPIEZA':
-                this.logStep('Iniciando limpieza - extrayendo resultado final');
+                this.logStep('Iniciando limpieza inteligente - buscar = y limpiar sistemáticamente');
                 
                 let equalsPos = -1;
                 for (let i = 0; i < this.tape.length; i++) {
@@ -265,6 +299,7 @@ class SumTuringMachine extends BaseTuringMachine {
                 }
                 
                 if (equalsPos !== -1) {
+                    // Extraer el resultado para saber qué vamos a invertir después
                     let result = [];
                     for (let i = equalsPos + 1; i < this.tape.length; i++) {
                         if (this.tape[i] !== '#' && this.tape[i] !== '' && /[01]/.test(this.tape[i])) {
@@ -273,16 +308,14 @@ class SumTuringMachine extends BaseTuringMachine {
                     }
                     
                     if (result.length > 0) {
-                        result.reverse();
+                        let resultString = result.join('');
+                        this.logStep(`Resultado de la suma detectado: ${resultString} (${this.num1} + ${this.num2} = ${resultString})`);
+                        this.resultadoParaInvertir = resultString;
                         
-                        this.tape = ['#'];
-                        for (let digit of result) {
-                            this.tape.push(digit);
-                        }
-                        this.tape.push('#');
-                        this.head = 1;
-                        this.state = 'COMPLETO';
-                        this.logStep(`Resultado final: ${result.join('')} (${this.num1} + ${this.num2} = ${result.join('')})`);
+                        // Ir a la posición del = para comenzar limpieza inteligente
+                        this.head = equalsPos;
+                        this.state = 'BUSCAR_IGUAL_Y_LIMPIAR';
+                        this.logStep(`Posicionándose en = en la posición ${equalsPos} para limpieza inteligente`);
                     } else {
                         this.state = 'COMPLETO';
                         this.logStep('No se encontraron dígitos de resultado - completando');
@@ -293,11 +326,173 @@ class SumTuringMachine extends BaseTuringMachine {
                 }
                 break;
 
+            case 'BUSCAR_IGUAL_Y_LIMPIAR':
+                if (symbol === '=') {
+                    this.writeSymbol('#');
+                    this.logStep('Encontrado =, cambiándolo por vacío (#)');
+                    this.moveLeft();
+                    this.state = 'LIMPIAR_HACIA_IZQUIERDA';
+                    this.logStep('Moviéndose hacia la izquierda para limpiar hasta encontrar otro vacío');
+                } else {
+                    // Si no estamos en =, buscar hacia la derecha
+                    this.moveRight();
+                    this.logStep('Buscando el símbolo = hacia la derecha');
+                }
+                break;
+
+            case 'LIMPIAR_HACIA_IZQUIERDA':
+                if (symbol === '#') {
+                    // Encontramos un vacío, detenemos la limpieza hacia la izquierda
+                    this.logStep('Encontrado vacío (#), limpieza hacia la izquierda completada');
+                    this.moveRight();
+                    this.state = 'BUSCAR_PRIMER_DIGITO';
+                    this.logStep('Moviéndose hacia la derecha para encontrar el primer dígito del resultado');
+                } else {
+                    // Cualquier otro símbolo, cambiarlo por vacío
+                    this.writeSymbol('#');
+                    this.logStep(`Limpiando '${symbol}' → vacío (#)`);
+                    this.moveLeft();
+                }
+                break;
+
+            case 'BUSCAR_PRIMER_DIGITO':
+                if (symbol === '0' || symbol === '1') {
+                    // Encontramos el primer dígito del resultado
+                    this.logStep(`Encontrado primer dígito del resultado: '${symbol}'`);
+                    this.moveLeft();
+                    this.state = 'POSICIONARSE_ANTES_RESULTADO';
+                    this.logStep('Retrocediendo un paso para posicionarse antes del resultado');
+                } else if (symbol === '#') {
+                    // Continuar buscando hacia la derecha
+                    this.moveRight();
+                    this.logStep('Buscando el primer dígito hacia la derecha');
+                } else {
+                    // Otro símbolo, continuar buscando
+                    this.moveRight();
+                    this.logStep('Continuando búsqueda del primer dígito');
+                }
+                break;
+
+            case 'POSICIONARSE_ANTES_RESULTADO':
+                if (symbol === '#') {
+                    // Estamos en un vacío antes del resultado, perfecto
+                    this.logStep('Posicionado correctamente antes del resultado');
+                    this.state = 'LIMPIAR_VACIOS_RESTANTES';
+                    this.logStep('Iniciando limpieza de vacíos restantes hacia la izquierda');
+                } else {
+                    // Si no es vacío, retroceder más
+                    this.moveLeft();
+                    this.logStep('Retrocediendo más para encontrar el vacío antes del resultado');
+                }
+                break;
+
+            case 'LIMPIAR_VACIOS_RESTANTES':
+                if (symbol === '#' && this.head > 0) {
+                    // Es un vacío y no estamos en la posición 0
+                    // QUEDARSE AQUÍ y limpiar hacia la izquierda sin moverse más hacia la derecha
+                    let posicionActual = this.head;
+                    this.logStep(`Desde posición ${posicionActual}, limpiando vacíos hacia la izquierda`);
+                    
+                    // Limpiar hacia la izquierda desde la posición actual
+                    for (let i = posicionActual - 1; i > 0; i--) {
+                        if (this.tape[i] === '#') {
+                            // No hacer nada, mantener el vacío en posición 0
+                            if (i === 0) {
+                                this.logStep(`Manteniendo vacío en posición ${i} (inicio de cinta)`);
+                            } else {
+                                // Eliminar vacíos intermedios reemplazándolos 
+                                this.logStep(`Limpiando vacío innecesario en posición ${i}`);
+                            }
+                        }
+                    }
+                    
+                    // Compactar inmediatamente desde esta posición
+                    this.logStep(`Limpieza completada desde posición ${posicionActual}, iniciando compactación`);
+                    this.state = 'COMPACTAR_RESULTADO_FINAL';
+                    
+                } else if (symbol === '#' && this.head === 0) {
+                    // Ya estamos en la posición 0, mantener este vacío
+                    this.logStep('Ya en posición 0, compactando resultado');
+                    this.state = 'COMPACTAR_RESULTADO_FINAL';
+                    
+                } else {
+                    // No es un vacío, retroceder una posición más
+                    this.moveLeft();
+                    this.logStep(`'${symbol}' no es vacío, retrocediendo para encontrar posición correcta`);
+                }
+                break;
+
+            case 'COMPACTAR_RESULTADO_FINAL':
+                this.logStep('🔧 COMPACTACIÓN FINAL: Creando cinta perfecta con solo el resultado');
+                this.logStep(`📋 Cinta antes de compactación final: [${this.tape.join(', ')}]`);
+                
+                // Extraer SOLO los dígitos válidos (0, 1) de toda la cinta
+                let resultadoLimpio = '';
+                for (let i = 0; i < this.tape.length; i++) {
+                    let sym = this.tape[i];
+                    if (sym === '0' || sym === '1') {
+                        resultadoLimpio += sym;
+                    }
+                }
+                
+                if (resultadoLimpio) {
+                    this.logStep(`📊 RESULTADO FINAL EXTRAÍDO: "${resultadoLimpio}"`);
+                    
+                    // RECONSTRUIR CINTA PERFECTA: # + resultado + #
+                    this.tape = ['#'];
+                    for (let char of resultadoLimpio) {
+                        this.tape.push(char);
+                    }
+                    this.tape.push('#');
+                    
+                    // Posicionar cabezal al inicio del resultado
+                    this.head = 1;
+                    
+                    this.logStep(`✅ Cinta perfecta creada: [${this.tape.join(', ')}]`);
+                    this.logStep(`🎯 Cabezal posicionado en: ${this.head}`);
+                    
+                    // Ahora iniciar la inversión
+                    this.iniciarInversion(resultadoLimpio);
+                } else {
+                    this.logStep('⚠️ No se encontró resultado válido para compactar');
+                    this.state = 'COMPLETO';
+                }
+                break;
+
             case 'COMPLETO':
-                this.logStep('¡Suma binaria completa!');
+                this.logStep('¡Suma binaria e inversión completas!');
                 return false;
         }
         
         return true;
+    }
+
+    limpiarHastaIgual() {
+        // Este método ya no se usa porque ahora limpiamos bit por bit
+        // en los estados LIMPIAR_BIT_POR_BIT y COMPACTAR_RESULTADO
+        this.logStep('🧹 Método limpiarHastaIgual() - Ya no se usa, limpieza bit por bit implementada');
+    }
+
+    iniciarInversion(numeroParaInvertir) {
+        this.logStep(`🔄 INICIANDO INVERSIÓN del resultado: "${numeroParaInvertir}"`);
+        
+        // Crear y configurar la máquina de inversión
+        this.invertMachine = new InvertTuringMachine();
+        
+        if (this.invertMachine.initialize(numeroParaInvertir)) {
+            this.currentPhase = 'INVERTIR';
+            this.state = 'INVIRTIENDO';
+            
+            // Copiar el estado inicial de la máquina de inversión
+            this.tape = [...this.invertMachine.tape];
+            this.head = this.invertMachine.head;
+            
+            this.logStep('✅ Máquina de inversión inicializada correctamente');
+            this.logStep(`📋 Cinta inicial para inversión: [${this.tape.join(', ')}]`);
+            this.logStep(`🎯 Posición inicial del cabezal: ${this.head}`);
+        } else {
+            this.logStep('❌ Error al inicializar la máquina de inversión');
+            this.state = 'COMPLETO';
+        }
     }
 }
