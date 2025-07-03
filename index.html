@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Máquina de Turing</title>
+    <title>Mathison</title>
     <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
     <div class="container">
-        <h1>🤖 Calculadora con Máquina de Turing</h1>
+        <h1>Mathison</h1>
+        <h1>Calculadora de Binarios con Máquinas de Turing</h1>
         
         <div class="operation-selector">
             <h3>Seleccionar Operación</h3>
@@ -16,21 +17,16 @@
                 <button class="operation-btn active" data-operation="sum">➕ Suma</button>
                 <button class="operation-btn" data-operation="subtract">➖ Resta</button>
                 <button class="operation-btn" data-operation="multiply">✖️ Multiplicación</button>
-                <button class="operation-btn" data-operation="divide">➗ División</button>
             </div>
         </div>
 
         <div class="algorithm-description" id="algorithmDescription">
-            <h3>Descripción del Algoritmo - Suma Binaria</h3>
+            <h3>Limitaciones de Mathison</h3>
             <ol id="algorithmSteps">
-                <li>Comenzar con acarreo = 0</li>
-                <li>Procesar cada par de dígitos del menos significativo al más significativo</li>
-                <li>Calcular suma = (dígito1 + dígito2 + acarreo) % 2</li>
-                <li>Calcular nuevo acarreo = (dígito1 + dígito2 + acarreo) / 2</li>
-                <li>Escribir el dígito suma en el área de resultado</li>
-                <li>Continuar hasta que todos los dígitos sean procesados</li>
-                <li>Manejar el acarreo restante si es necesario</li>
-                <li>Limpiar y presentar el resultado final</li>
+                <li>SUMA: Solo se puede entre dos números binarios.</li>
+                <li>RESTA: Solo se puede entre dos números binarios</li>
+                <li>MULTIPLICACIÓN: El multiplicador (segundo número) debe tener SOLO DOS DÍGITOS.</li>
+                <li>MANEJO DE RESULTADOS: Para la resta, se le avisará cuando el número es negativo.</li>
             </ol>
         </div>
 
@@ -92,7 +88,6 @@
     <script src="js/operations/sum.js"></script>
     <script src="js/operations/subtract.js"></script>
     <script src="js/operations/multiply.js"></script>
-    <script src="js/operations/divide.js"></script>
     <script src="js/operations/invert.js"></script>
     <script src="js/main.js"></script>
 </body>

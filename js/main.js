@@ -4,61 +4,6 @@
 let currentMachine = null;
 let currentOperation = 'sum';
 
-// Descripciones de algoritmos para cada operación
-const algorithmDescriptions = {
-    sum: {
-        title: 'Descripción del Algoritmo - Suma Binaria',
-        steps: [
-            'Comenzar con acarreo = 0',
-            'Procesar cada par de dígitos del menos significativo al más significativo',
-            'Calcular suma = (dígito1 + dígito2 + acarreo) % 2',
-            'Calcular nuevo acarreo = (dígito1 + dígito2 + acarreo) / 2',
-            'Escribir el dígito suma en el área de resultado',
-            'Continuar hasta que todos los dígitos sean procesados',
-            'Manejar el acarreo restante si es necesario',
-            'Limpiar y presentar el resultado final'
-        ]
-    },
-    subtract: {
-        title: 'Descripción del Algoritmo - Resta Binaria',
-        steps: [
-            'Comenzar con préstamo = 0',
-            'Procesar cada par de dígitos del menos significativo al más significativo',
-            'Si dígito1 >= dígito2 + préstamo: resultado = dígito1 - dígito2 - préstamo',
-            'Si dígito1 < dígito2 + préstamo: resultado = (2 + dígito1) - dígito2 - préstamo, préstamo = 1',
-            'Escribir el dígito resultado en el área de resultado',
-            'Continuar hasta que todos los dígitos sean procesados',
-            'Verificar si el resultado es negativo',
-            'Limpiar y presentar el resultado final'
-        ]
-    },
-    multiply: {
-        title: 'Descripción del Algoritmo - Multiplicación Binaria',
-        steps: [
-            'Inicializar resultado = 0',
-            'Para cada dígito del multiplicador (de derecha a izquierda)',
-            'Si el dígito es 1, sumar el multiplicando al resultado',
-            'Desplazar el multiplicando una posición a la izquierda',
-            'Continuar hasta procesar todos los dígitos del multiplicador',
-            'El resultado final es la suma de todos los productos parciales',
-            'Limpiar y presentar el resultado final'
-        ]
-    },
-    divide: {
-        title: 'Descripción del Algoritmo - División Binaria',
-        steps: [
-            'Verificar que el divisor no sea cero',
-            'Inicializar cociente = 0 y resto = 0',
-            'Para cada dígito del dividendo (de izquierda a derecha)',
-            'Desplazar resto a la izquierda y agregar el dígito actual',
-            'Si resto >= divisor: resto = resto - divisor, agregar 1 al cociente',
-            'Si resto < divisor: agregar 0 al cociente',
-            'Continuar hasta procesar todos los dígitos',
-            'Limpiar y presentar cociente y resto'
-        ]
-    }
-};
-
 // Función para actualizar la descripción del algoritmo
 function updateAlgorithmDescription(operation) {
     const description = algorithmDescriptions[operation];
@@ -206,28 +151,22 @@ function updateDisplay() {
         tapeElement.appendChild(cell);
     }
     
-    document.getElementById('state').textContent = currentMachine.state;
+    // Actualizar estado actual
+    const stateElement = document.getElementById('state');
+    stateElement.textContent = currentMachine.state;
+    
+    // Actualizar posición
     document.getElementById('position').textContent = currentMachine.head;
     
-    // Mostrar carry/borrow según la operación
+    // Mostrar carry/borrow en su propio elemento (tercer cuadro)
     const carryElement = document.getElementById('carry');
-    const carryLabel = document.querySelector('.status-item .status-label');
     
     if (currentMachine.carry !== undefined) {
         carryElement.textContent = currentMachine.carry;
-        if (carryLabel && carryLabel.textContent !== 'Acarreo') {
-            carryLabel.textContent = 'Acarreo';
-        }
     } else if (currentMachine.borrow !== undefined) {
         carryElement.textContent = currentMachine.borrow;
-        if (carryLabel && carryLabel.textContent !== 'Préstamo') {
-            carryLabel.textContent = 'Préstamo';
-        }
     } else {
         carryElement.textContent = '-';
-        if (carryLabel) {
-            carryLabel.textContent = 'Carry/Borrow';
-        }
     }
     
     document.getElementById('stepCount').textContent = currentMachine.stepCount;
