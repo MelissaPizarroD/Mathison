@@ -138,17 +138,19 @@ class InvertTuringMachine extends BaseTuringMachine {
     }
 }
 
-// MÁQUINA ULTRA SIMPLE - SIN BUCLES
+// MÁQUINA MEJORADA QUE INVIERTE Y LUEGO SUMA
 class InvertSumTuringMachine extends BaseTuringMachine {
     constructor() {
         super();
-        this.maxSteps = 150;
-        this.currentPhase = 'INICIAL';
+        this.maxSteps = 300;
+        this.currentPhase = 'INVERTIR';
         this.simboloParaEscribir = '';
+        this.sumMachine = null; // Referencia a la máquina de suma
+        this.invertedExpression = ''; // Para almacenar la expresión invertida
     }
 
     initialize(sumExpression) {
-        this.logStep(`🚀 INICIO: "${sumExpression}"`);
+        this.logStep(`🚀 INICIO INVERSIÓN+SUMA: "${sumExpression}"`);
         
         let clean = '';
         for (let char of sumExpression) {
@@ -168,8 +170,10 @@ class InvertSumTuringMachine extends BaseTuringMachine {
         this.steps = [];
         this.running = false;
         this.state = 'INICIO';
-        this.currentPhase = 'AGREGAR_IGUAL';
+        this.currentPhase = 'INVERTIR';
         this.simboloParaEscribir = '';
+        this.sumMachine = null;
+        this.invertedExpression = '';
         
         this.logStep(`📋 Cinta inicial: [${this.tape.join(', ')}]`);
         return true;
@@ -180,9 +184,28 @@ class InvertSumTuringMachine extends BaseTuringMachine {
         
         if (this.stepCount > this.maxSteps) {
             this.logStep(`⏹️ LÍMITE ALCANZADO en paso ${this.maxSteps}`);
-            this.extraerResultadoFinal();
             this.state = 'COMPLETO';
             return false;
+        }
+
+        // Si estamos en fase de suma, delegar a la máquina de suma
+        if (this.currentPhase === 'SUMAR' && this.sumMachine) {
+            let continuar = this.sumMachine.executeStep();
+            
+            // Actualizar nuestra cinta y cabezal con el estado de la máquina de suma
+            this.tape = [...this.sumMachine.tape];
+            this.head = this.sumMachine.head;
+            
+            // Log del progreso de la suma
+            this.logStep(`SUMA: Estado=${this.sumMachine.state}, Pos=${this.sumMachine.head}, Símbolo='${this.sumMachine.getCurrentSymbol()}'`);
+            
+            if (!continuar) {
+                // La suma ha terminado
+                this.state = 'COMPLETO';
+                this.logStep(`🎉 SUMA COMPLETADA! Resultado final: [${this.tape.join(', ')}]`);
+                return false;
+            }
+            return true;
         }
         
         let symbol = this.getCurrentSymbol();
@@ -203,7 +226,6 @@ class InvertSumTuringMachine extends BaseTuringMachine {
                     this.writeSymbol('=');
                     this.moveRight();
                     this.writeSymbol('#');
-                    this.currentPhase = 'PROCESAR_SEGUNDO_NUMERO';
                     this.state = 'IR_A_SEGUNDO_NUMERO';
                     this.logStep('✅ = agregado al final, procesando segundo número');
                 } else {
@@ -214,7 +236,7 @@ class InvertSumTuringMachine extends BaseTuringMachine {
             // FASE 1: PROCESAR SEGUNDO NÚMERO (después del +)
             case 'IR_A_SEGUNDO_NUMERO':
                 if (symbol === '=') {
-                    this.moveLeft(); // Ir hacia el segundo número
+                    this.moveLeft();
                     this.state = 'BUSCAR_ULTIMO_DIGITO_SEGUNDO';
                     this.logStep('Posicionándose para encontrar último dígito del segundo número');
                 } else {
@@ -224,7 +246,6 @@ class InvertSumTuringMachine extends BaseTuringMachine {
 
             case 'BUSCAR_ULTIMO_DIGITO_SEGUNDO':
                 if (symbol === '0' || symbol === '1') {
-                    // Encontramos el dígito más a la derecha del segundo número
                     this.simboloParaEscribir = symbol;
                     this.writeSymbol('X');
                     this.moveRight();
@@ -251,7 +272,7 @@ class InvertSumTuringMachine extends BaseTuringMachine {
 
             case 'REGRESAR_A_X_SEGUNDO':
                 if (symbol === 'X') {
-                    this.moveLeft(); // Buscar el siguiente dígito hacia la izquierda
+                    this.moveLeft();
                     this.state = 'BUSCAR_SIGUIENTE_SEGUNDO';
                     this.logStep('Buscando siguiente dígito del segundo número hacia la izquierda');
                 } else {
@@ -261,15 +282,12 @@ class InvertSumTuringMachine extends BaseTuringMachine {
 
             case 'BUSCAR_SIGUIENTE_SEGUNDO':
                 if (symbol === '0' || symbol === '1') {
-                    // Encontrado siguiente dígito del segundo número
                     this.simboloParaEscribir = symbol;
                     this.writeSymbol('X');
                     this.moveRight();
                     this.state = 'ESCRIBIR_SEGUNDO_SIGUIENTE';
                     this.logStep(`✅ Siguiente dígito del segundo número: '${symbol}' → X`);
                 } else if (symbol === '+') {
-                    // Ya no hay más dígitos en el segundo número
-                    this.currentPhase = 'AGREGAR_PLUS_SEGUNDO';
                     this.state = 'BUSCAR_FINAL_PARA_PLUS_SEGUNDO';
                     this.logStep('✅ Segundo número completado, agregando + al resultado');
                 } else {
@@ -281,7 +299,7 @@ class InvertSumTuringMachine extends BaseTuringMachine {
                 if (symbol === '=') {
                     this.moveRight();
                 } else if (symbol === '0' || symbol === '1') {
-                    this.moveRight(); // Pasar los dígitos ya escritos
+                    this.moveRight();
                 } else if (symbol === '#') {
                     this.writeSymbol(this.simboloParaEscribir);
                     this.moveRight();
@@ -298,11 +316,10 @@ class InvertSumTuringMachine extends BaseTuringMachine {
                     this.writeSymbol('+');
                     this.moveRight();
                     this.writeSymbol('#');
-                    this.currentPhase = 'PROCESAR_PRIMER_NUMERO';
                     this.state = 'IR_A_PRIMER_NUMERO';
                     this.logStep('✅ + agregado después del segundo número invertido');
                 } else if (symbol === '0' || symbol === '1') {
-                    this.moveRight(); // Pasar los dígitos ya escritos del segundo número
+                    this.moveRight();
                 } else {
                     this.moveRight();
                 }
@@ -321,7 +338,7 @@ class InvertSumTuringMachine extends BaseTuringMachine {
 
             case 'BUSCAR_ULTIMO_DIGITO_PRIMER':
                 if (symbol === '+') {
-                    this.moveLeft(); // Ir al último dígito del primer número
+                    this.moveLeft();
                     this.state = 'PROCESAR_DIGITO_PRIMER';
                 } else {
                     this.moveRight();
@@ -336,10 +353,8 @@ class InvertSumTuringMachine extends BaseTuringMachine {
                     this.state = 'ESCRIBIR_PRIMER_DERECHA';
                     this.logStep(`✅ Dígito del primer número: '${symbol}' → Y`);
                 } else if (symbol === 'Y') {
-                    this.moveLeft(); // Continuar buscando hacia la izquierda
+                    this.moveLeft();
                 } else if (symbol === '#') {
-                    // Ya no hay más dígitos en el primer número
-                    this.currentPhase = 'LIMPIAR';
                     this.state = 'LIMPIAR_MARCADORES';
                     this.logStep('✅ Primer número completado, iniciando limpieza');
                 } else {
@@ -358,9 +373,9 @@ class InvertSumTuringMachine extends BaseTuringMachine {
 
             case 'ESCRIBIR_PRIMER_DESPUES_PLUS':
                 if (symbol === '0' || symbol === '1') {
-                    this.moveRight(); // Pasar el segundo número invertido
+                    this.moveRight();
                 } else if (symbol === '+') {
-                    this.moveRight(); // Pasar el + del resultado
+                    this.moveRight();
                 } else if (symbol === '#') {
                     this.writeSymbol(this.simboloParaEscribir);
                     this.moveRight();
@@ -368,7 +383,7 @@ class InvertSumTuringMachine extends BaseTuringMachine {
                     this.state = 'REGRESAR_A_Y_PRIMER';
                     this.logStep(`✅ Escrito '${this.simboloParaEscribir}' del primer número`);
                 } else if (symbol === 'X') {
-                    this.moveRight(); // Pasar marcadores del segundo número
+                    this.moveRight();
                 } else {
                     this.moveRight();
                 }
@@ -376,14 +391,14 @@ class InvertSumTuringMachine extends BaseTuringMachine {
 
             case 'REGRESAR_A_Y_PRIMER':
                 if (symbol === 'Y') {
-                    this.moveLeft(); // Buscar siguiente dígito hacia la izquierda
+                    this.moveLeft();
                     this.state = 'PROCESAR_DIGITO_PRIMER';
                 } else {
                     this.moveLeft();
                 }
                 break;
 
-            // FASE 3: LIMPIAR TODO ANTES DEL = (INCLUYENDO EL =)
+            // FASE 3: LIMPIAR Y PREPARAR PARA SUMA
             case 'LIMPIAR_MARCADORES':
                 if (symbol === '#' && this.head === 0) {
                     this.moveRight();
@@ -396,18 +411,25 @@ class InvertSumTuringMachine extends BaseTuringMachine {
 
             case 'BUSCAR_Y_LIMPIAR_HASTA_IGUAL':
                 if (symbol === '=') {
-                    // Encontramos el =, también lo borramos
                     this.writeSymbol('#');
                     this.moveRight();
                     this.logStep('Encontrado =, borrándolo también');
-                    // Ahora extraer lo que queda
-                    this.extraerResultadoFinal();
-                    this.state = 'COMPLETO';
+                    
+                    // Después de limpiar hasta el =, extraer la expresión y comenzar suma
+                    this.extraerExpresionInvertida();
+                    
+                    // Verificar que tenemos una expresión válida antes de iniciar suma
+                    if (this.invertedExpression && this.invertedExpression.includes('+')) {
+                        this.iniciarSuma();
+                    } else {
+                        this.logStep(`❌ Expresión invertida inválida: "${this.invertedExpression}"`);
+                        this.state = 'COMPLETO';
+                    }
+                    
+                    return true; // Importante: retornar aquí para no continuar el bucle
                 } else if (symbol === '#') {
-                    // Es un espacio vacío, solo continuar
                     this.moveRight();
                 } else {
-                    // Cualquier otro símbolo antes del =, borrarlo
                     this.writeSymbol('#');
                     this.moveRight();
                     this.logStep(`Borrando '${symbol}' antes del = → #`);
@@ -415,12 +437,11 @@ class InvertSumTuringMachine extends BaseTuringMachine {
                 break;
 
             case 'COMPLETO':
-                this.logStep('🎉 ¡INVERSIÓN COMPLETADA!');
+                this.logStep('🎉 ¡INVERSIÓN Y SUMA COMPLETADAS!');
                 return false;
 
             default:
                 this.logStep(`❌ Estado desconocido: ${this.state}`);
-                this.extraerResultadoFinal();
                 this.state = 'COMPLETO';
                 return false;
         }
@@ -428,11 +449,10 @@ class InvertSumTuringMachine extends BaseTuringMachine {
         return true;
     }
 
-    extraerResultadoFinal() {
-        this.logStep('🔍 Extrayendo resultado final y compactando cinta...');
-        this.logStep(`📋 Cinta antes de compactar: [${this.tape.join(', ')}]`);
+    extraerExpresionInvertida() {
+        this.logStep('🔍 Extrayendo expresión invertida...');
+        this.logStep(`📋 Cinta antes de extraer: [${this.tape.join(', ')}]`);
         
-        // Extraer SOLO los caracteres válidos (0, 1, +) ignorando todos los #
         let resultado = '';
         for (let i = 0; i < this.tape.length; i++) {
             let sym = this.tape[i];
@@ -441,31 +461,50 @@ class InvertSumTuringMachine extends BaseTuringMachine {
             }
         }
         
-        if (resultado) {
-            this.logStep(`📊 RESULTADO EXTRAÍDO: "${resultado}"`);
-            
-            // RECONSTRUIR CINTA COMPLETAMENTE: # + resultado + #
-            this.tape = ['#'];
-            for (let char of resultado) {
-                this.tape.push(char);
-            }
-            this.tape.push('#');
-            
-            // Posicionar cabezal al inicio del resultado
-            this.head = 1;
-            
-            this.logStep(`✅ Cinta compactada: [${this.tape.join(', ')}]`);
-        } else {
-            this.logStep('⚠️ No se encontró resultado válido para extraer');
-            // Cinta mínima si no hay resultado
-            this.tape = ['#', '#'];
-            this.head = 1;
-        }
+        this.invertedExpression = resultado;
+        this.logStep(`📊 EXPRESIÓN INVERTIDA: "${this.invertedExpression}"`);
+    }
+
+    iniciarSuma() {
+        this.logStep(`🔢 INICIANDO SUMA de la expresión invertida: "${this.invertedExpression}"`);
         
-        this.logStep(`📋 CINTA FINAL COMPACTA: [${this.tape.join(', ')}]`);
+        // Separar los números para pasárselos a la máquina de suma
+        let parts = this.invertedExpression.split('+');
+        if (parts.length === 2) {
+            let num1 = parts[0];
+            let num2 = parts[1];
+            
+            this.logStep(`📝 Números a sumar: "${num1}" + "${num2}"`);
+            
+            // Validar que los números no estén vacíos
+            if (!num1) num1 = '0';
+            if (!num2) num2 = '0';
+            
+            // Crear y configurar la máquina de suma
+            this.sumMachine = new SumTuringMachine();
+            
+            if (this.sumMachine.initialize(num1, num2)) {
+                this.currentPhase = 'SUMAR';
+                this.state = 'SUMANDO';
+                
+                // Copiar el estado inicial de la máquina de suma
+                this.tape = [...this.sumMachine.tape];
+                this.head = this.sumMachine.head;
+                
+                this.logStep('✅ Máquina de suma inicializada correctamente');
+                this.logStep(`📋 Cinta inicial para suma: [${this.tape.join(', ')}]`);
+                this.logStep(`🎯 Posición inicial del cabezal: ${this.head}`);
+            } else {
+                this.logStep('❌ Error al inicializar la máquina de suma');
+                this.state = 'COMPLETO';
+            }
+        } else {
+            this.logStep('❌ Error: no se pudo separar la expresión en dos números');
+            this.logStep(`📊 Partes encontradas: ${parts.length}, contenido: [${parts.join(', ')}]`);
+            this.state = 'COMPLETO';
+        }
     }
 }
-
 
 function initializeInversion(number) {
     const invertMachine = new InvertTuringMachine();
